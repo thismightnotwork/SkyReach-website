@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SkyReach Events</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      margin: 0; padding: 0;
+    }
+    header {
+      background: #1e293b;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    header img {
+      height: 50px;
+    }
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1rem;
+    }
+    nav a {
+      color: #93c5fd;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+    main {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    button#logoutBtn {
+      background-color: #2563eb;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      color: white;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    button#logoutBtn:hover {
+      background-color: #1e40af;
+    }
+
+    /* Events-specific styles */
+    h1.events-title {
+      text-align: center;
+      margin-bottom: 40px;
+      font-weight: normal;
+      color: #eee;
+    }
+    .event {
+      background: #222;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+    }
+    .buttons {
+      margin-top: 12px;
+    }
+    input[type="text"], select {
+      padding: 6px;
+      margin-right: 8px;
+      border-radius: 4px;
+      border: none;
+      font-size: 14px;
+    }
+    button.bid-btn {
+      background: #4caf50;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 5px;
+      color: #fff;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    /* Disclaimer overlay */
+    #disclaimerOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(17, 17, 17, 0.9);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.5s ease;
+    }
+    .disclaimerBox {
+      background-color: #222;
+      border-radius: 10px;
+      padding: 30px;
+      max-width: 500px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    }
+    .disclaimerBox h2 {
+      margin-bottom: 20px;
+      color: #fff;
+    }
+    .disclaimerBox p {
+      margin-bottom: 25px;
+      font-size: 14px;
+      color: #ccc;
+    }
+    .disclaimerBox button {
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="../assets/logo.png" alt="SkyReach Logo" />
+    <nav>
+      <a href="ivao-list.html">IVAO List</a>
+      <a href="vatsim-list.html">VATSIM List</a>
+      <a href="live-flights.html">Live Flights</a>
+      <a href="roster.html">Roster</a>
+      <a href="events.html">Events</a>
+      <a href="events-roster.html">Event Roster</a>
+      <button id="logoutBtn">Log Out</button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="content">
+      <h1 class="events-title">Upcoming Events</h1>
+      <div id="events"></div>
+    </section>
+  </main>
+
+  <script>
+    const sheetId = "1mfeQcYkV57hUIPk18qLrWJ7WEEcW5wn-0PY-WKsN-mY";
+    const sheetName = "Events";
+
+    const formAction = "https://docs.google.com/forms/d/e/1FAIpQLSc1OoAx560-7XTXQ1ti6epGr4tBRWNZdfRS5jnzz85h9igdRA/formResponse";
+    const entryEvent = "entry.469984143";
+    const entryPosition = "entry.361423870";
+    const entryName = "entry.671754429";
+    const entryFlightRules = "entry.584226124";
+
+    async function fetchEvents() {
+      const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
+      try {
+        const response = await fetch(url);
+        const text = await response.text();
+        const json = JSON.parse(text.substr(47).slice(0, -2));
+        const rows = json.table.rows;
+        const container = document.getElementById("events");
+        container.innerHTML = "";
+
+        rows.forEach(row => {
+          const title = row.c[1] ? row.c[1].v : "";
+          const desc = row.c[2] ? row.c[2].v : "";
+          const dateRaw = row.c[4] ? row.c[4].v : null;
+
+          let dateStr = "";
+          if (dateRaw) {
+            if (typeof dateRaw === "string" && dateRaw.includes("Date(")) {
+              const parts = dateRaw.match(/\d+/g);
+              if (parts && parts.length >= 3) {
+                const year = parts[0];
+                const month = String(Number(parts[1]) + 1).padStart(2, '0');
+                const day = String(parts[2]).padStart(2, '0');
+                dateStr = `${year}-${month}-${day}`;
+              }
+            } else if (typeof dateRaw === "string") {
+              const d = new Date(dateRaw);
+              if (!isNaN(d)) {
+                const y = d.getFullYear();
+                const m = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                dateStr = `${y}-${m}-${day}`;
+              }
+            }
+          }
+
+          const safeId = title.replace(/\W/g, "_");
+
+          const div = document.createElement("div");
+          div.className = "event";
+          div.innerHTML = `
+            <h2>${title}</h2>
+            <p>${desc}</p>
+            <p><strong>Date:</strong> ${dateStr}</p>
+            <div class="buttons">
+              <input type="text" id="name-${safeId}" placeholder="Your Name" />
+              <select id="position-${safeId}" onchange="toggleFlightRules('${safeId}')">
+                <option value="Delivery">Delivery</option>
+                <option value="Ground">Ground</option>
+                <option value="Tower">Tower</option>
+                <option value="Approach">Approach</option>
+                <option value="Center">Center</option>
+                <option value="Pilot">Pilot</option>
+              </select>
+              <select id="flightRules-${safeId}" style="display:none; margin-top: 8px;">
+                <option value="IFR">IFR</option>
+                <option value="VFR">VFR</option>
+              </select>
+              <button class="bid-btn" onclick="submitBid('${title}', '${safeId}')">Bid</button>
+            </div>
+          `;
+          container.appendChild(div);
+        });
+      } catch (err) {
+        document.getElementById("events").innerHTML = "<p>Failed to load events, please try again later.</p>";
+        console.error(err);
+      }
+    }
+
+    function toggleFlightRules(safeId) {
+      const position = document.getElementById(`position-${safeId}`).value;
+      const flightRulesDropdown = document.getElementById(`flightRules-${safeId}`);
+      flightRulesDropdown.style.display = (position === "Pilot") ? "inline-block" : "none";
+    }
+
+    function submitBid(eventTitle, safeId) {
+      const nameInput = document.getElementById(`name-${safeId}`);
+      const positionSelect = document.getElementById(`position-${safeId}`);
+      const flightRulesSelect = document.getElementById(`flightRules-${safeId}`);
+
+      if (!nameInput.value.trim()) {
+        alert("Please enter your name.");
+        return;
+      }
+
+      const form = document.createElement("form");
+      form.action = formAction;
+      form.method = "POST";
+      form.target = "_blank";
+
+      const inputEvent = document.createElement("input");
+      inputEvent.type = "hidden";
+      inputEvent.name = entryEvent;
+      inputEvent.value = eventTitle;
+
+      const inputPosition = document.createElement("input");
+      inputPosition.type = "hidden";
+      inputPosition.name = entryPosition;
+      inputPosition.value = positionSelect.value;
+
+      const inputName = document.createElement("input");
+      inputName.type = "hidden";
+      inputName.name = entryName;
+      inputName.value = nameInput.value.trim();
+
+      form.appendChild(inputEvent);
+      form.appendChild(inputPosition);
+      form.appendChild(inputName);
+
+      if (positionSelect.value === "Pilot") {
+        const inputRules = document.createElement("input");
+        inputRules.type = "hidden";
+        inputRules.name = entryFlightRules;
+        inputRules.value = flightRulesSelect.value;
+        form.appendChild(inputRules);
+      }
+
+      document.body.appendChild(form);
+      form.submit();
+      document.body.removeChild(form);
+
+      alert(`Bid sent for "${positionSelect.value}" at event "${eventTitle}"!`);
+      nameInput.value = "";
+    }
+
+    fetchEvents();
+  </script>
+
+  <!-- Disclaimer Overlay -->
+  <div id="disclaimerOverlay">
+    <div class="disclaimerBox">
+      <h2>⚠️ Disclaimer</h2>
+      <p>
+        This bidding system is for <strong>internal SkyReach use only</strong> and is <strong>not affiliated with IVAO</strong>.<br><br>
+        It does not interact with or affect the official IVAO booking system — all bids are for internal coordination only.<br><br>
+        Please <strong>do not book ATC on IVAO</strong> until we've confirmed roles. We'll contact selected controllers to book officially.
+      </p>
+      <button onclick="acknowledgeDisclaimer()">I Acknowledge</button>
+    </div>
+  </div>
+
+  <script>
+    function acknowledgeDisclaimer() {
+      const overlay = document.getElementById("disclaimerOverlay");
+      overlay.style.opacity = "0";
+      setTimeout(() => {
+        overlay.style.display = "none";
+      }, 500);
+    }
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA92I8ATCslzGoveL_LFKproCkI0clq5XE",
+      authDomain: "skyreach-login.firebaseapp.com",
+      projectId: "skyreach-login",
+      storageBucket: "skyreach-login.firebasestorage.app",
+      messagingSenderId: "531909303327",
+      appId: "1:531909303327:web:58f4b25a6b8023ef87c92a",
+      measurementId: "G-3XKSQ6W4PY"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    onAuthStateChanged(auth, user => {
+      if (!user) {
+        window.location.href = "../login.html";
+      }
+    });
+
+    document.getElementById('logoutBtn').onclick = () => {
+      signOut(auth).then(() => {
+        window.location.href = "../login.html";
+      });
+    };
+  </script>
+</body>
+</html>
