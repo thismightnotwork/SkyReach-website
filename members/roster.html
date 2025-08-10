@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>SkyReach Roster</title>
   <style>
+    /* ... your existing styles ... */
     body {
       font-family: Arial, sans-serif;
       background: #0f172a;
@@ -91,6 +92,49 @@
     .red {
       background-color: #f44336;
     }
+
+    /* Admin dropdown styles */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+      margin-left: 1rem;
+    }
+    .dropbtn {
+      background-color: #2563eb;
+      color: white;
+      padding: 8px 12px;
+      font-size: 14px;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .dropbtn:hover {
+      background-color: #1e40af;
+    }
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #1e293b;
+      min-width: 160px;
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+      border-radius: 6px;
+      z-index: 1000;
+      right: 0;
+    }
+    .dropdown-content a {
+      color: #93c5fd;
+      padding: 10px 14px;
+      text-decoration: none;
+      display: block;
+      font-weight: bold;
+    }
+    .dropdown-content a:hover {
+      background-color: #2563eb;
+      color: white;
+    }
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
   </style>
 </head>
 <body>
@@ -103,6 +147,10 @@
       <a href="roster.html">Roster</a>
       <a href="events.html">Events</a>
       <a href="events-roster.html">Event Roster</a>
+
+      <!-- Admin menu placeholder -->
+      <div id="adminMenuContainer"></div>
+
       <button id="logoutBtn">Log Out</button>
     </nav>
   </header>
@@ -190,14 +238,33 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // Redirect to login if not authenticated
-    onAuthStateChanged(auth, user => {
+    onAuthStateChanged(auth, async user => {
       if (!user) {
+        // Not logged in, redirect to login page
         window.location.href = "../login.html";
+        return;
+      }
+
+      // Get ID token result to check custom claims (admin)
+      const idTokenResult = await user.getIdTokenResult();
+      const isAdmin = idTokenResult.claims.admin === true;
+
+      if (isAdmin) {
+        // Create admin dropdown menu in navbar
+        const adminMenuContainer = document.getElementById('adminMenuContainer');
+        adminMenuContainer.innerHTML = `
+          <div class="dropdown">
+            <button class="dropbtn">Admin ▼</button>
+            <div class="dropdown-content">
+              <a href="edit-event.html">Edit Event</a>
+              <a href="add-event.html">Add Event</a>
+              <a href="event-selection.html">Event Selection</a>
+            </div>
+          </div>
+        `;
       }
     });
 
-    // Logout button
     document.getElementById('logoutBtn').onclick = () => {
       signOut(auth).then(() => {
         window.location.href = "../login.html";
