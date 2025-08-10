@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SkyReach - Login</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      padding: 0 1rem;
+    }
+    #login-container {
+      background: #1e293b;
+      padding: 2rem;
+      border-radius: 12px;
+      width: 320px;
+      box-shadow: 0 0 15px rgba(37, 99, 235, 0.5);
+    }
+    input, button {
+      width: 100%;
+      padding: 0.8rem;
+      margin: 0.5rem 0;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: none;
+    }
+    input {
+      background: #334155;
+      color: white;
+    }
+    input::placeholder {
+      color: #94a3b8;
+    }
+    button {
+      background-color: #2563eb;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      border: none;
+    }
+    button:hover {
+      background-color: #1e40af;
+    }
+    #message {
+      margin-top: 1rem;
+      min-height: 1.2rem;
+      color: #f87171;
+    }
+    header img {
+      height: 50px;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="assets/logo.png" alt="SkyReach Logo" />
+  </header>
+
+  <div id="login-container">
+    <input id="email" type="email" placeholder="Email" autocomplete="username" />
+    <input id="password" type="password" placeholder="Password" autocomplete="current-password" />
+    <button id="login-btn">Log In</button>
+    <button id="signup-btn">Sign Up</button>
+    <button id="logout-btn" style="display:none;">Log Out</button>
+    <div id="message"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-analytics.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA92I8ATCslzGoveL_LFKproCkI0clq5XE",
+      authDomain: "skyreach-login.firebaseapp.com",
+      projectId: "skyreach-login",
+      storageBucket: "skyreach-login.firebasestorage.app",
+      messagingSenderId: "531909303327",
+      appId: "1:531909303327:web:58f4b25a6b8023ef87c92a",
+      measurementId: "G-3XKSQ6W4PY"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const auth = getAuth(app);
+
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const loginBtn = document.getElementById('login-btn');
+    const signupBtn = document.getElementById('signup-btn');
+    const logoutBtn = document.getElementById('logout-btn');
+    const message = document.getElementById('message');
+
+    loginBtn.onclick = () => {
+      message.textContent = "";
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
+      if (!email || !password) {
+        message.textContent = "Please enter email and password.";
+        return;
+      }
+      signInWithEmailAndPassword(auth, email, password)
+        .then(() => {
+          window.location.href = 'members/index.html';
+        })
+        .catch(e => {
+          message.textContent = e.message;
+        });
+    };
+
+    signupBtn.onclick = () => {
+      message.textContent = "";
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
+      if (!email || !password) {
+        message.textContent = "Please enter email and password.";
+        return;
+      }
+      createUserWithEmailAndPassword(auth, email, password)
+        .then(() => {
+          message.style.color = "lightgreen";
+          message.textContent = "Sign up successful! You can now log in.";
+        })
+        .catch(e => {
+          message.style.color = "#f87171";
+          message.textContent = e.message;
+        });
+    };
+
+    logoutBtn.onclick = () => {
+      signOut(auth);
+    };
+
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        emailInput.style.display = "none";
+        passwordInput.style.display = "none";
+        loginBtn.style.display = "none";
+        signupBtn.style.display = "none";
+        logoutBtn.style.display = "block";
+        message.style.color = "lightgreen";
+        message.textContent = `Logged in as ${user.email}`;
+      } else {
+        emailInput.style.display = "block";
+        passwordInput.style.display = "block";
+        loginBtn.style.display = "inline-block";
+        signupBtn.style.display = "inline-block";
+        logoutBtn.style.display = "none";
+        message.style.color = "#f87171";
+        message.textContent = "";
+      }
+    });
+  </script>
+</body>
+</html>
