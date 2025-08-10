@@ -9,21 +9,52 @@
   <style>
     body {
       font-family: Arial, sans-serif;
+      margin: 0; padding: 0;
       background: #0f172a;
       color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
+      text-align: center;
+    }
+    header {
+      background: #1e293b;
+      padding: 1rem;
+    }
+    header img {
+      height: 60px;
+      vertical-align: middle;
+    }
+    nav a {
+      color: #93c5fd;
+      margin: 0 1rem;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+    main {
+      max-width: 900px;
+      margin: 2rem auto;
       padding: 0 1rem;
+    }
+    #banner {
+      width: 100%;
+      max-height: 250px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+    }
+    footer {
+      margin-top: 3rem;
+      font-size: 0.9rem;
+      color: #94a3b8;
+      padding-bottom: 1rem;
     }
     #login-container {
       background: #1e293b;
       padding: 2rem;
       border-radius: 12px;
-      width: 320px;
+      max-width: 350px;
+      margin: 0 auto;
       box-shadow: 0 0 15px rgba(37, 99, 235, 0.5);
     }
     input, button {
@@ -56,28 +87,35 @@
       min-height: 1.2rem;
       color: #f87171;
     }
-    header img {
-      width: 380px; /* slightly wider than login box */
-      max-width: 90%; /* responsive for smaller screens */
-      height: auto;
-      display: block;
-      margin: 0 auto 1rem auto;
-    }
   </style>
 </head>
 <body>
   <header>
-    <img id="banner" src="assets/banner.png" alt="SkyReach Banner" />
+    <img src="assets/logo.png" alt="SkyReach Logo" />
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="login.html">Login</a>
+    </nav>
   </header>
 
-  <div id="login-container">
-    <input id="email" type="email" placeholder="Email" autocomplete="username" />
-    <input id="password" type="password" placeholder="Password" autocomplete="current-password" />
-    <button id="login-btn">Log In</button>
-    <button id="signup-btn">Sign Up</button>
-    <button id="logout-btn" style="display:none;">Log Out</button>
-    <div id="message"></div>
-  </div>
+  <main>
+    <img id="banner" src="assets/banner.png" alt="SkyReach Banner" />
+    <h1>Member Login</h1>
+    <p>Access the SkyReach members area.</p>
+
+    <div id="login-container">
+      <input id="email" type="email" placeholder="Email" autocomplete="username" />
+      <input id="password" type="password" placeholder="Password" autocomplete="current-password" />
+      <button id="login-btn">Log In</button>
+      <button id="signup-btn">Sign Up</button>
+      <button id="logout-btn" style="display:none;">Log Out</button>
+      <div id="message"></div>
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2025 SkyReach Virtual Airline — All rights reserved.
+  </footer>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
