@@ -16,6 +16,8 @@
       justify-content: space-between;
       flex-wrap: wrap;
       color: white;
+      z-index: 1100;
+      position: relative;
     }
     header img {
       height: 50px;
@@ -47,12 +49,16 @@
       background-color: #1e40af;
     }
     main {
-      display: flex;
+      position: relative;
       height: calc(100vh - 70px);
       width: 100%;
-      position: relative;
+      overflow: hidden;
     }
     #sidebar-left {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
       width: 320px;
       background:#111;
       border-right:1px solid #333;
@@ -60,29 +66,41 @@
       overflow-y:auto;
       z-index:1000;
       box-sizing: border-box;
-      display: block; /* visible on load */
+      transform: translateX(0);
+      transition: transform 0.3s ease;
+    }
+    #sidebar-left.hidden {
+      transform: translateX(-100%);
     }
     #sidebar-right {
-      position:absolute;
-      top:0;
-      right:-300px;
-      width:300px;
-      height:100%;
-      background:#111;
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 300px;
+      background: #111;
       border-left:1px solid #333;
-      padding:10px;
-      overflow-y:auto;
-      transition:right .3s ease;
-      z-index:1001;
+      padding: 10px;
+      overflow-y: auto;
+      z-index: 1001;
       box-sizing: border-box;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
     }
     #sidebar-right.visible {
-      right:0;
+      transform: translateX(0);
     }
     #map {
-      flex:1;
-      height:100%;
-      z-index:0;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 320px;
+      right: 0;
+      transition: left 0.3s ease;
+      z-index: 0;
+    }
+    #map.full-width {
+      left: 0 !important;
     }
     #flightsList {
       list-style:none;
@@ -232,6 +250,7 @@
     const flightDetailsEl = document.getElementById('flightDetails'),
           sidebarRightEl = document.getElementById('sidebar-right'),
           sidebarLeftEl = document.getElementById('sidebar-left'),
+          mapEl = document.getElementById('map'),
           statusEl = document.getElementById('status'),
           flightsListEl = document.getElementById('flightsList'),
           refreshBtn = document.getElementById('refreshBtn'),
@@ -240,10 +259,6 @@
 
     const planeIconBase = 'https://raw.githubusercontent.com/thismightnotwork/Metar/main/pngkey.com-plane-icon-png-1382606.png';
     let markers = [];
-
-    // Sidebar visibility states
-    let leftSidebarVisible = true;
-    let rightSidebarVisible = false;
 
     function clearMarkers() {
       markers.forEach(m => map.removeLayer(m));
@@ -296,40 +311,18 @@
         Arrival Time: ${arrTime}
       `;
 
-      // Show right sidebar, hide left sidebar
+      // Show right sidebar, hide left sidebar, adjust map
       sidebarRightEl.classList.add('visible');
-      sidebarLeftEl.style.display = 'none';
-      leftSidebarVisible = false;
-      rightSidebarVisible = true;
+      sidebarLeftEl.classList.add('hidden');
+      mapEl.classList.add('full-width');
     }
 
     function hideRightSidebar() {
       sidebarRightEl.classList.remove('visible');
-      rightSidebarVisible = false;
+      sidebarLeftEl.classList.remove('hidden');
+      mapEl.classList.remove('full-width');
+      flightDetailsEl.innerHTML = 'Click an aircraft to view details.';
     }
-
-    function toggleLeftSidebar() {
-      if (leftSidebarVisible) {
-        sidebarLeftEl.style.display = 'none';
-        leftSidebarVisible = false;
-      } else {
-        sidebarLeftEl.style.display = 'block';
-        leftSidebarVisible = true;
-      }
-    }
-
-    // Handle clicks on map: toggle sidebars accordingly
-    map.on('click', (e) => {
-      // If right sidebar visible, hide it & show left sidebar
-      if (rightSidebarVisible) {
-        hideRightSidebar();
-        sidebarLeftEl.style.display = 'block';
-        leftSidebarVisible = true;
-      } else {
-        // Right sidebar hidden, toggle left sidebar visibility
-        toggleLeftSidebar();
-      }
-    });
 
     function drawMarker(f) {
       const lat = f.lastTrack?.latitude || f.latitude;
@@ -351,10 +344,9 @@
 
       const m = L.marker([lat, lon], { icon }).addTo(map);
       m.on('click', (e) => {
-        // Show flight details & sidebars as per requirement
+        // Stop event propagation so map click doesn’t fire
+        e.originalEvent.stopPropagation();
         showFlightDetails(f);
-        // Prevent map click event firing after this
-        e.originalEvent._fromMarker = true;
       });
       markers.push(m);
     }
@@ -436,9 +428,6 @@
           statusEl.textContent = 'No flights found.';
           flightsListEl.innerHTML = '';
           clearMarkers();
-          // Show left sidebar, hide right sidebar
-          sidebarLeftEl.style.display = 'block';
-          leftSidebarVisible = true;
           hideRightSidebar();
           return;
         }
@@ -457,11 +446,19 @@
       if (icaoInput.value.length > 3) icaoInput.value = icaoInput.value.slice(0, 3);
     };
 
+    // Map click: hide right sidebar, show left sidebar
+    map.on('click', () => {
+      hideRightSidebar();
+    });
+
     // Initial load
     updateFlights();
   </script>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
-  <footer style="color:#999; padding:10px; text-align:center; background:#111;">
-    &copy; 202
+  <footer>
+    &copy; 2025 SkyReach Virtual Airline — All rights reserved.
+  </footer>
+</body>
+</html>
