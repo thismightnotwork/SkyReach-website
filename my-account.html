@@ -3,180 +3,217 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SkyReach Members Area - My Account</title>
+  <title>SkyReach - My Account</title>
   <link rel="icon" type="image/png" href="/assets/logo.png" />
 
-  <link rel="manifest" href="/manifest.json" />
-  <link rel="apple-touch-icon" href="/assets/logo.png" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="SkyReach" />
-
   <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #1e293b;
+      --muted: #94a3b8;
+      --accent: #2563eb;
+      --accent-hover: #1e40af;
+      --card-shadow: 0 0 15px rgba(37, 99, 235, 0.15);
+      --glass: rgba(255,255,255,0.03);
+    }
+    html,body { height:100%; }
     body {
       font-family: Arial, sans-serif;
-      background: #0f172a;
-      color: white;
       margin: 0; padding: 0;
-    }
-    header {
-      background: #1e293b;
-      padding: 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-    }
-    header img {
-      height: 50px;
-    }
-    nav {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 1rem;
-    }
-    nav a {
-      color: #93c5fd;
-      text-decoration: none;
-      font-weight: bold;
-    }
-    nav a:hover {
-      text-decoration: underline;
-    }
-    main {
-      max-width: 900px;
-      margin: 2rem auto;
-      padding: 0 1rem;
-      line-height: 1.6;
-    }
-    h1, h2 {
+      background: var(--bg);
+      color: white;
+      -webkit-font-smoothing:antialiased;
       text-align: center;
     }
-    label {
-      display: block;
-      margin-top: 1rem;
-      font-weight: bold;
+    header {
+      background: var(--panel);
+      padding: 1rem;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:1rem;
     }
-    input, button {
-      margin-top: 0.5rem;
-      padding: 0.5rem;
-      width: 100%;
-      max-width: 300px;
-      border-radius: 5px;
-      border: none;
-      font-size: 1rem;
+    header img { height:60px; vertical-align:middle; }
+    nav { display:flex; gap:1rem; align-items:center; }
+    nav a {
+      color: #93c5fd;
+      text-decoration:none;
+      font-weight:bold;
     }
-    input {
-      background: #1e293b;
-      color: white;
+    nav a:hover { text-decoration:underline; }
+    main { max-width:1000px; margin:2rem auto; padding:0 1rem; text-align:left; }
+    .page-title { margin:0 0 8px 0; font-size:22px; }
+    .lead { color:var(--muted); margin-bottom:16px; }
+
+    .grid { display:grid; grid-template-columns:320px 1fr; gap:20px; align-items:start; }
+    @media (max-width:880px){ .grid { grid-template-columns: 1fr; } }
+
+    .card {
+      background: var(--panel);
+      padding:18px;
+      border-radius:12px;
+      box-shadow: var(--card-shadow);
     }
-    input::placeholder {
-      color: #94a3b8;
+
+    label { display:block; font-size:13px; color:var(--muted); margin-top:12px; }
+    input, select, textarea {
+      width:100%;
+      padding:10px;
+      margin-top:6px;
+      border-radius:6px;
+      border:none;
+      background:#334155;
+      color:white;
+      box-sizing:border-box;
     }
+    input::placeholder{ color:var(--muted); }
+    .row { display:flex; gap:10px; }
+    .small { font-size:13px; color:var(--muted); }
+
     button {
-      background-color: #2563eb;
-      color: white;
-      cursor: pointer;
-      font-weight: bold;
+      width:100%;
+      padding:10px;
+      margin-top:12px;
+      border-radius:6px;
+      border:none;
+      background:var(--accent);
+      color:white;
+      font-weight:bold;
+      cursor:pointer;
     }
-    button:hover {
-      background-color: #1e40af;
+    button:hover { background:var(--accent-hover); }
+    .btn-ghost {
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.06);
+      color:var(--muted);
+      font-weight:600;
     }
-    #logoutBtn {
-      max-width: 150px;
-      margin: 2rem auto 0 auto;
-      display: block;
+
+    footer {
+      margin-top:32px;
+      font-size:0.9rem;
+      color:var(--muted);
+      padding-bottom:1rem;
+      text-align:center;
+      background:transparent;
     }
-    .info-box {
-      margin-top: 1.5rem;
-      padding: 1rem;
-      background: #1e293b;
-      border-radius: 8px;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
-      text-align: left;
-    }
-    .stats {
-      margin-top: 1rem;
-      font-size: 1.1rem;
-      background: #334155;
-      border-radius: 6px;
-      padding: 1rem;
-      max-width: 400px;
-      margin-left: auto;
-      margin-right: auto;
-      display: block; /* Always visible */
-    }
-    .stats p {
-      margin: 0.4rem 0;
-    }
-    .small {
-      font-size: 0.85rem;
-      color: #94a3b8;
-    }
-    #saveMessage {
-      margin-top: 1rem;
-      font-weight: bold;
-      min-height: 1.2rem;
-    }
-    #saveMessage.success {
-      color: #4ade80; /* green */
-    }
-    #saveMessage.error {
-      color: #f87171; /* red */
-    }
+
+    table { width:100%; border-collapse:collapse; margin-top:8px; }
+    th,td { text-align:left; padding:8px; border-bottom:1px solid rgba(255,255,255,0.03); font-size:13px; }
+    .muted { color:var(--muted); }
+    .progressText { font-size:13px; color:var(--muted); margin-top:6px }
   </style>
 </head>
 <body>
-
   <header>
-    <img src="/assets/logo.png" alt="SkyReach Logo" />
+    <div style="display:flex;align-items:center;gap:16px">
+      <img src="/assets/logo.png" alt="SkyReach Logo" />
+      <div style="display:none"><!-- reserved --></div>
+    </div>
+
     <nav>
-      <a href="ivao-list.html">IVAO List</a>
-      <a href="vatsim-list.html">VATSIM List</a>
-      <a href="live-flights.html">Live Flights</a>
-      <a href="events.html">Events</a>
-      <a href="events-roster.html">Event Roster</a>
+      <a href="/index.html">Home</a>
+      <a href="/login.html">Login</a>
+      <a href="/signup.html">Sign Up</a>
+      <a href="/contact-us.html">Contact Us</a>
+      <button id="logoutTopBtn" style="background:var(--accent);border:none;padding:8px 10px;border-radius:6px;color:#fff;cursor:pointer">Log Out</button>
     </nav>
   </header>
 
   <main>
-    <h1>My Account</h1>
+    <h1 class="page-title">My Account</h1>
+    <p class="lead">View and edit your SkyReach profile.</p>
 
-    <div class="info-box">
-      <p><strong>Logged in as:</strong> <span id="userEmail">Loading...</span></p>
-      <label for="displayName">Display Name</label>
-      <input type="text" id="displayName" placeholder="Your display name" />
+    <div class="grid">
+      <!-- left column: removed avatar -->
 
-      <label for="newskyId">NewSky ID</label>
-      <input type="text" id="newskyId" placeholder="Your NewSky pilot ID (hex string)" />
-      <p class="small">
-        How to find your NewSky ID:<br />
-        1. Log in to <a href="https://newsky.app" target="_blank" style="color:#93c5fd;">NewSky website</a>.<br />
-        2. Click your profile and check the URL: your ID is the long hex string at the end.<br />
-        Example URL: <code>https://newsky.app/pilot/67b7aa45dac6dc5765a8b7df</code>
-      </p>
+      <!-- right column -->
+      <div>
+        <div class="card">
+          <label>Display Name</label>
+          <input id="displayName" placeholder="Name (what other pilots see)" />
 
-      <div class="stats" id="newskyStats">
-        <h2>NewSky Pilot Stats</h2>
-        <p><strong>Hours Flown:</strong> <span id="hoursFlown">-</span></p>
-        <p><strong>Flights:</strong> <span id="flightsCount">-</span></p>
-        <p><strong>Average Landing Rate:</strong> <span id="landingRate">-</span> ft/min</p>
+          <label>Email (can't change here)</label>
+          <input id="email" type="email" disabled />
+
+          <label>Hub</label>
+          <select id="hub">
+            <option value="EGCC">Manchester (EGCC)</option>
+            <option value="EGGW">Luton (EGGW)</option>
+            <option value="EGKK">Gatwick (EGKK)</option>
+            <option value="EGPH">Edinburgh (EGPH)</option>
+          </select>
+
+          <label>Rank</label>
+          <input id="rank" placeholder="Trainee / First Officer / Captain" />
+
+          <label>NewSky ID</label>
+          <input id="newskyId" placeholder="Your NewSky pilot ID" />
+
+          <div class="row">
+            <div style="flex:1">
+              <label>Hours</label>
+              <input id="hours" type="number" min="0" step="1" />
+            </div>
+            <div style="flex:1">
+              <label>Flights</label>
+              <input id="flights" type="number" min="0" step="1" />
+            </div>
+          </div>
+
+          <label>Theme</label>
+          <select id="theme">
+            <option value="dark">Dark</option>
+            <option value="light">Light</option>
+          </select>
+
+          <label>Timezone</label>
+          <input id="timezone" placeholder="Europe/London" />
+
+          <label><input id="notifications" type="checkbox" style="vertical-align:middle" /> Enable notifications (email/discord)</label>
+
+          <div class="row" style="margin-top:12px">
+            <button id="saveBtn">Save changes</button>
+            <button id="resetPwdBtn" class="btn-ghost">Send password reset</button>
+          </div>
+
+          <div style="margin-top:10px">
+            <button id="logoutBtn" class="btn-ghost">Log out</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:16px">
+          <strong>Account info</strong>
+          <div class="small muted" style="margin-top:6px">Joined: <span id="joinedAt">—</span></div>
+          <div class="small muted">Last updated live from Firestore</div>
+        </div>
       </div>
-
-      <button id="saveBtn" style="margin-top: 1.5rem;">Save Changes</button>
-      <div id="saveMessage"></div>
     </div>
-
-    <button id="logoutBtn">Log Out</button>
   </main>
 
+  <footer>
+    &copy; 2025 SkyReach Virtual Airline — All rights reserved.
+  </footer>
+
+  <!-- ===== Firebase + App logic ===== -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut,
+      updateProfile,
+      sendPasswordResetEmail
+    } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      setDoc,
+      updateDoc,
+      onSnapshot,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA92I8ATCslzGoveL_LFKproCkI0clq5XE",
@@ -192,146 +229,138 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    const userEmailSpan = document.getElementById('userEmail');
-    const displayNameInput = document.getElementById('displayName');
-    const newskyIdInput = document.getElementById('newskyId');
-    const newskyStatsDiv = document.getElementById('newskyStats');
-    const hoursFlownSpan = document.getElementById('hoursFlown');
-    const flightsCountSpan = document.getElementById('flightsCount');
-    const landingRateSpan = document.getElementById('landingRate');
+    const displayNameEl = document.getElementById('displayName');
+    const emailEl = document.getElementById('email');
+    const hubEl = document.getElementById('hub');
+    const rankEl = document.getElementById('rank');
+    const newskyEl = document.getElementById('newskyId');
+    const hoursEl = document.getElementById('hours');
+    const flightsEl = document.getElementById('flights');
+    const themeEl = document.getElementById('theme');
+    const timezoneEl = document.getElementById('timezone');
+    const notificationsEl = document.getElementById('notifications');
+
     const saveBtn = document.getElementById('saveBtn');
-    const saveMessage = document.getElementById('saveMessage');
+    const resetPwdBtn = document.getElementById('resetPwdBtn');
     const logoutBtn = document.getElementById('logoutBtn');
+    const logoutTopBtn = document.getElementById('logoutTopBtn');
+
+    const joinedAtEl = document.getElementById('joinedAt');
 
     let currentUid = null;
     let userDocRef = null;
 
-    const newskyToken = 'SRH_IkQ2nFKheLXMpbYHqJVhSjjkOFJrM1';
-
-    function debounce(func, wait) {
-      let timeout;
-      return function(...args) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(this, args), wait);
-      };
-    }
-
+    // Auth guard and load profile
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.href = "/login.html";
         return;
       }
-
       currentUid = user.uid;
-      userEmailSpan.textContent = user.email || 'No email';
-
       userDocRef = doc(db, 'users', currentUid);
+
+      // Create default if missing
       const docSnap = await getDoc(userDocRef);
-
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        displayNameInput.value = data.displayName || '';
-        newskyIdInput.value = data.newskyID || '';
-
-        if (newskyIdInput.value) {
-          fetchNewSkyStats(newskyIdInput.value);
-        }
-      } else {
+      if (!docSnap.exists()) {
         await setDoc(userDocRef, {
-          displayName: user.displayName || '',
-          newskyID: ''
-        });
+          displayName: user.displayName || (user.email ? user.email.split('@')[0] : 'Pilot'),
+          email: user.email || '',
+          role: 'Pilot',
+          hub: 'EGCC',
+          rank: 'Trainee',
+          newskyID: '',
+          joinedAt: serverTimestamp(),
+          hours: 0,
+          flights: 0,
+          settings: { theme: 'dark', timezone: 'Europe/London', notifications: true },
+          avatarUrl: ''
+        }, { merge: true });
       }
+
+      // Subscribe to live updates
+      onSnapshot(userDocRef, (s) => {
+        const data = s.data();
+        if (!data) return;
+
+        displayNameEl.value = data.displayName || '';
+        emailEl.value = data.email || (user.email || '');
+        hubEl.value = data.hub || 'EGCC';
+        rankEl.value = data.rank || 'Trainee';
+        newskyEl.value = data.newskyID || '';
+        hoursEl.value = data.hours ?? 0;
+        flightsEl.value = data.flights ?? 0;
+        themeEl.value = data.settings?.theme || 'dark';
+        timezoneEl.value = data.settings?.timezone || 'Europe/London';
+        notificationsEl.checked = !!data.settings?.notifications;
+
+        joinedAtEl.textContent = data.joinedAt && data.joinedAt.toDate ? data.joinedAt.toDate().toLocaleDateString() : '—';
+      });
     });
 
-    async function fetchNewSkyStats(newskyID) {
-      if (!newskyID || newskyID.length < 10) {
-        hoursFlownSpan.textContent = '-';
-        flightsCountSpan.textContent = '-';
-        landingRateSpan.textContent = '-';
-        newskyStatsDiv.style.display = 'block'; // always visible
-        return;
-      }
-
-      try {
-        hoursFlownSpan.textContent = 'Loading...';
-        flightsCountSpan.textContent = 'Loading...';
-        landingRateSpan.textContent = 'Loading...';
-        newskyStatsDiv.style.display = 'block';
-
-        const url = `https://newsky-flight.com/api/v1/pilots/${newskyID}?token=${newskyToken}`;
-        const response = await fetch(url);
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch from NewSky API');
-        }
-
-        const data = await response.json();
-
-        if (data.success !== true) {
-          throw new Error(data.message || 'NewSky API error');
-        }
-
-        const pilot = data.data;
-        hoursFlownSpan.textContent = pilot.hours.toFixed(1);
-        flightsCountSpan.textContent = pilot.flights;
-        landingRateSpan.textContent = pilot.landingrate.toFixed(1);
-
-      } catch (err) {
-        hoursFlownSpan.textContent = '-';
-        flightsCountSpan.textContent = '-';
-        landingRateSpan.textContent = '-';
-        console.error('NewSky API error:', err);
-      }
-    }
-
-    newskyIdInput.addEventListener('input', debounce(() => {
-      fetchNewSkyStats(newskyIdInput.value.trim());
-    }, 800));
-
+    // Save profile changes
     saveBtn.addEventListener('click', async () => {
-      const newDisplayName = displayNameInput.value.trim();
-      const newskyID = newskyIdInput.value.trim();
-
-      if (!currentUid) {
-        saveMessage.textContent = 'User not authenticated.';
-        saveMessage.className = 'error';
-        return;
-      }
-
-      saveBtn.disabled = true;
-      saveBtn.textContent = 'Saving...';
-      saveMessage.textContent = ''; // Clear previous message
-      saveMessage.className = '';
-
       try {
-        if (auth.currentUser.displayName !== newDisplayName) {
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving...';
+
+        const newDisplayName = displayNameEl.value.trim();
+        const updates = {
+          displayName: newDisplayName,
+          hub: hubEl.value,
+          rank: rankEl.value.trim(),
+          newskyID: newskyEl.value.trim(),
+          hours: Number(hoursEl.value) || 0,
+          flights: Number(flightsEl.value) || 0,
+          settings: {
+            theme: themeEl.value,
+            timezone: timezoneEl.value.trim() || 'Europe/London',
+            notifications: !!notificationsEl.checked
+          }
+        };
+
+        if (auth.currentUser && auth.currentUser.displayName !== newDisplayName) {
           await updateProfile(auth.currentUser, { displayName: newDisplayName });
         }
 
-        await updateDoc(userDocRef, {
-          displayName: newDisplayName,
-          newskyID: newskyID
-        });
+        await updateDoc(userDocRef, updates);
 
-        await fetchNewSkyStats(newskyID);
-
-        saveMessage.textContent = 'Profile saved successfully!';
-        saveMessage.className = 'success';
+        saveBtn.textContent = 'Saved';
+        setTimeout(() => { saveBtn.textContent = 'Save changes'; }, 1200);
       } catch (err) {
-        saveMessage.textContent = 'Failed to save profile: ' + err.message;
-        saveMessage.className = 'error';
+        alert('Error saving profile: ' + (err.message || err));
+        saveBtn.textContent = 'Save changes';
       } finally {
         saveBtn.disabled = false;
-        saveBtn.textContent = 'Save Changes';
       }
     });
 
-    logoutBtn.addEventListener('click', () => {
-      signOut(auth).then(() => {
-        window.location.href = '/login.html';
-      });
+    // Reset password
+    resetPwdBtn.addEventListener('click', async () => {
+      const email = emailEl.value;
+      if (!email) {
+        alert('No email');
+        return;
+      }
+      try {
+        await sendPasswordResetEmail(auth, email);
+        alert('Password reset email sent to ' + email);
+      } catch (err) {
+        alert('Error sending reset email: ' + (err.message || err));
+      }
     });
+
+    // Logout
+    async function doLogout() {
+      try {
+        await signOut(auth);
+        window.location.href = '/login.html';
+      } catch (err) {
+        alert('Logout failed: ' + (err.message || err));
+      }
+    }
+    logoutBtn.addEventListener('click', doLogout);
+    logoutTopBtn.addEventListener('click', doLogout);
+
   </script>
 </body>
 </html>
