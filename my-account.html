@@ -57,8 +57,6 @@
       color: white;
       cursor: pointer;
       white-space: nowrap;
-      font-weight: bold;
-      font-size: 1rem;
     }
     button#logoutBtn:hover {
       background-color: #1e40af;
@@ -74,7 +72,6 @@
       text-align: center;
       margin-bottom: 1rem;
     }
-
     label {
       display: block;
       font-size: 14px;
@@ -155,13 +152,13 @@
 </head>
 <body>
   <header>
-    <img src="/assets/logo.png" alt="SkyReach Logo" />
+    <img src="../assets/logo.png" alt="SkyReach Logo" />
     <nav>
-      <a href="/ivao-list.html">IVAO List</a>
-      <a href="/vatsim-list.html">VATSIM List</a>
-      <a href="/live-flights.html">Live Flights</a>
-      <a href="/events.html">Events</a>
-      <a href="/events-roster.html">Event Roster</a>
+      <a href="ivao-list.html">IVAO List</a>
+      <a href="vatsim-list.html">VATSIM List</a>
+      <a href="live-flights.html">Live Flights</a>
+      <a href="events.html">Events</a>
+      <a href="events-roster.html">Event Roster</a>
       <a href="/my-account.html">My Account</a>
       <button id="logoutBtn">Log Out</button>
     </nav>
@@ -184,8 +181,28 @@
       <option value="EGPH">Edinburgh (EGPH)</option>
     </select>
 
-    <label for="rank">Rank</label>
-    <input id="rank" placeholder="Trainee / First Officer / Captain" />
+    <label for="rank">Rank (cannot change)</label>
+    <input id="rank" placeholder="Trainee / First Officer / Captain" disabled />
+
+    <label for="newskyId">NewSky ID</label>
+    <input id="newskyId" placeholder="Your NewSky pilot ID" />
+
+    <div class="row">
+      <div>
+        <label for="hours">Hours</label>
+        <input id="hours" type="number" min="0" step="1" />
+      </div>
+      <div>
+        <label for="flights">Flights</label>
+        <input id="flights" type="number" min="0" step="1" />
+      </div>
+    </div>
+
+    <label for="theme">Theme</label>
+    <select id="theme">
+      <option value="dark">Dark</option>
+      <option value="light">Light</option>
+    </select>
 
     <label for="timezone">Timezone</label>
     <input id="timezone" placeholder="Europe/London" />
@@ -201,10 +218,6 @@
       <div id="joinedAt">Joined: —</div>
     </div>
   </main>
-
-  <footer>
-    &copy; 2025 SkyReach Virtual Airline — All rights reserved.
-  </footer>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
@@ -254,14 +267,12 @@
     const resetPwdBtn = document.getElementById('resetPwdBtn');
     const logoutBtn = document.getElementById('logoutBtn');
 
-    const joinedAtEl = document.getElementById('joinedAt');
-
     let currentUid = null;
     let userDocRef = null;
 
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        window.location.href = "/login.html";
+        window.location.href = "../login.html";
         return;
       }
       currentUid = user.uid;
@@ -312,7 +323,7 @@
         const updates = {
           displayName: newDisplayName,
           hub: hubEl.value,
-          rank: rankEl.value.trim(),
+          // rank NOT updated to keep it disabled
           newskyID: newskyEl.value.trim(),
           hours: Number(hoursEl.value) || 0,
           flights: Number(flightsEl.value) || 0,
@@ -356,11 +367,15 @@
     logoutBtn.addEventListener('click', async () => {
       try {
         await signOut(auth);
-        window.location.href = '/login.html';
+        window.location.href = '../login.html';
       } catch (err) {
         alert('Logout failed: ' + (err.message || err));
       }
     });
   </script>
+
+  <footer>
+    &copy; 2025 SkyReach Virtual Airline — All rights reserved.
+  </footer>
 </body>
 </html>
