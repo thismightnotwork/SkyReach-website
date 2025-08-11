@@ -166,7 +166,8 @@
         const prompt = document.getElementById('ios-install-prompt');
         prompt.style.display = 'flex';
 
-        document.getElementById('dismiss-prompt').addEventListener('click', () => {
+        const dismissBtn = document.getElementById('dismiss-prompt');
+        dismissBtn.addEventListener('click', () => {
           prompt.style.display = 'none';
           localStorage.setItem('iosInstallPromptDismissed', 'true');
         });
