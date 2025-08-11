@@ -115,6 +115,17 @@
       font-size: 0.85rem;
       color: #94a3b8;
     }
+    #saveMessage {
+      margin-top: 1rem;
+      font-weight: bold;
+      min-height: 1.2rem;
+    }
+    #saveMessage.success {
+      color: #4ade80; /* green */
+    }
+    #saveMessage.error {
+      color: #f87171; /* red */
+    }
   </style>
 </head>
 <body>
@@ -122,12 +133,11 @@
   <header>
     <img src="/assets/logo.png" alt="SkyReach Logo" />
     <nav>
-      <a href="/members/ivao-list.html">IVAO List</a>
-      <a href="/members/vatsim-list.html">VATSIM List</a>
-      <a href="/members/live-flights.html">Live Flights</a>
-      <a href="/members/events.html">Events</a>
-      <a href="/members/events-roster.html">Event Roster</a>
-      <a href="my-account.html">My Account</a>
+      <a href="ivao-list.html">IVAO List</a>
+      <a href="vatsim-list.html">VATSIM List</a>
+      <a href="live-flights.html">Live Flights</a>
+      <a href="events.html">Events</a>
+      <a href="events-roster.html">Event Roster</a>
     </nav>
   </header>
 
@@ -156,6 +166,7 @@
       </div>
 
       <button id="saveBtn" style="margin-top: 1.5rem;">Save Changes</button>
+      <div id="saveMessage"></div>
     </div>
 
     <button id="logoutBtn">Log Out</button>
@@ -166,7 +177,6 @@
     import { getAuth, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
-    // Your Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyA92I8ATCslzGoveL_LFKproCkI0clq5XE",
       authDomain: "skyreach-login.firebaseapp.com",
@@ -177,7 +187,6 @@
       measurementId: "G-3XKSQ6W4PY"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
@@ -190,6 +199,7 @@
     const flightsCountSpan = document.getElementById('flightsCount');
     const landingRateSpan = document.getElementById('landingRate');
     const saveBtn = document.getElementById('saveBtn');
+    const saveMessage = document.getElementById('saveMessage');
     const logoutBtn = document.getElementById('logoutBtn');
 
     let currentUid = null;
@@ -197,7 +207,6 @@
 
     const newskyToken = 'SRH_IkQ2nFKheLXMpbYHqJVhSjjkOFJrM1';
 
-    // Debounce helper for input changes
     function debounce(func, wait) {
       let timeout;
       return function(...args) {
@@ -246,13 +255,13 @@
         landingRateSpan.textContent = 'Loading...';
         newskyStatsDiv.style.display = 'block';
 
-        // NewSky API URL
         const url = `https://newsky-flight.com/api/v1/pilots/${newskyID}?token=${newskyToken}`;
-
         const response = await fetch(url);
+
         if (!response.ok) {
           throw new Error('Failed to fetch from NewSky API');
         }
+
         const data = await response.json();
 
         if (data.success !== true) {
@@ -270,23 +279,24 @@
       }
     }
 
-    // Auto-fetch stats when NewSky ID input changes (debounced)
     newskyIdInput.addEventListener('input', debounce(() => {
       fetchNewSkyStats(newskyIdInput.value.trim());
     }, 800));
 
-    // Save changes button
     saveBtn.addEventListener('click', async () => {
       const newDisplayName = displayNameInput.value.trim();
       const newskyID = newskyIdInput.value.trim();
 
       if (!currentUid) {
-        alert('User not authenticated');
+        saveMessage.textContent = 'User not authenticated.';
+        saveMessage.className = 'error';
         return;
       }
 
       saveBtn.disabled = true;
       saveBtn.textContent = 'Saving...';
+      saveMessage.textContent = ''; // Clear previous message
+      saveMessage.className = '';
 
       try {
         if (auth.currentUser.displayName !== newDisplayName) {
@@ -298,19 +308,19 @@
           newskyID: newskyID
         });
 
-        // After save, fetch NewSky stats and update display immediately
         await fetchNewSkyStats(newskyID);
 
-        alert('Profile saved successfully!');
+        saveMessage.textContent = 'Profile saved successfully!';
+        saveMessage.className = 'success';
       } catch (err) {
-        alert('Failed to save profile: ' + err.message);
+        saveMessage.textContent = 'Failed to save profile: ' + err.message;
+        saveMessage.className = 'error';
       } finally {
         saveBtn.disabled = false;
         saveBtn.textContent = 'Save Changes';
       }
     });
 
-    // Logout button
     logoutBtn.addEventListener('click', () => {
       signOut(auth).then(() => {
         window.location.href = '/login.html';
