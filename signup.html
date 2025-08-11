@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>SkyReach - Sign Up</title>
   <link rel="icon" type="image/png" href="assets/logo.png" />
-
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -32,69 +31,43 @@
       text-decoration: underline;
     }
     main {
-      max-width: 900px;
-      margin: 2rem auto;
-      padding: 0 1rem;
-    }
-    #banner {
-      width: 100%;
-      max-height: 250px;
-      object-fit: cover;
-      border-radius: 10px;
-      margin-bottom: 2rem;
-    }
-    #signup-container {
-      background: #1e293b;
-      padding: 2rem;
-      border-radius: 12px;
       max-width: 400px;
-      margin: 0 auto;
+      margin: 2rem auto;
+      padding: 1rem;
+      background: #1e293b;
+      border-radius: 12px;
       box-shadow: 0 0 15px rgba(37, 99, 235, 0.5);
-      text-align: left;
     }
-    label {
-      display: block;
-      margin-top: 1rem;
-      font-weight: bold;
-    }
-    input {
+    input, button {
       width: 100%;
       padding: 0.8rem;
-      margin-top: 0.3rem;
+      margin: 0.5rem 0;
+      font-size: 1rem;
       border-radius: 6px;
       border: none;
+      box-sizing: border-box;
+    }
+    input {
       background: #334155;
       color: white;
-      font-size: 1rem;
     }
     input::placeholder {
       color: #94a3b8;
     }
     button {
-      width: 100%;
-      padding: 0.8rem;
-      margin-top: 1.5rem;
-      font-weight: bold;
-      font-size: 1rem;
-      background-color: #28a745;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
+      background-color: #2563eb; /* same blue as login */
       color: white;
+      cursor: pointer;
+      font-weight: bold;
+      border: none;
     }
     button:hover {
-      background-color: #218838;
+      background-color: #1e40af;
     }
     #message {
       margin-top: 1rem;
       min-height: 1.2rem;
       color: #f87171;
-      text-align: center;
-    }
-    .instructions {
-      font-size: 0.85rem;
-      color: #bbb;
-      margin-bottom: 0.8rem;
     }
   </style>
 </head>
@@ -110,42 +83,25 @@
   </header>
 
   <main>
-    <img id="banner" src="assets/banner.png" alt="SkyReach Banner" />
-    <h1>Member Sign Up</h1>
+    <h1>Create an Account</h1>
 
-    <form id="signup-container" action="https://docs.google.com/forms/d/e/1FAIpQLSc_9Kv1IKRvnDndhLCy0Bt73hN4oKqgEGY_MQH1sX2dnA2kig/formResponse" method="POST" target="hidden_iframe" onsubmit="handleSubmit(event)">
-      <label for="firstName">First Name</label>
-      <input type="text" id="firstName" name="entry.1530938677" placeholder="First Name" required />
+    <input id="firstName" type="text" placeholder="First Name" autocomplete="given-name" required />
+    <input id="ivaoCID" type="text" placeholder="IVAO CID" required />
+    <input id="vatsimVID" type="text" placeholder="VATSIM VID" required />
 
-      <label for="ivaoCID">IVAO CID</label>
-      <input type="text" id="ivaoCID" name="entry.583736312" placeholder="IVAO CID" required />
-      <div class="instructions">Your IVAO CID is found in your IVAO profile.</div>
+    <input id="email" type="email" placeholder="Email" autocomplete="email" required />
+    <input id="password" type="password" placeholder="Password" autocomplete="new-password" required />
 
-      <label for="vatsimVID">VATSIM VID</label>
-      <input type="text" id="vatsimVID" name="entry.1060043433" placeholder="VATSIM VID" required />
-      <div class="instructions">Your VATSIM VID is found in your VATSIM profile.</div>
+    <button id="signupBtn">Sign Up</button>
 
-      <label for="email">Email</label>
-      <input type="email" id="email" placeholder="Email" autocomplete="username" required />
-
-      <label for="password">Password</label>
-      <input type="password" id="password" placeholder="Password" autocomplete="new-password" required />
-
-      <button type="submit" id="submitBtn">Sign Up</button>
-      <div id="message"></div>
-    </form>
+    <div id="message"></div>
   </main>
-
-  <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
-
-  <footer>
-    &copy; 2025 SkyReach Virtual Airline — All rights reserved.
-  </footer>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyA92I8ATCslzGoveL_LFKproCkI0clq5XE",
       authDomain: "skyreach-login.firebaseapp.com",
@@ -159,48 +115,70 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    const form = document.getElementById('signup-container');
-    const submitBtn = document.getElementById('submitBtn');
+    const firstNameInput = document.getElementById('firstName');
+    const ivaoCIDInput = document.getElementById('ivaoCID');
+    const vatsimVIDInput = document.getElementById('vatsimVID');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const signupBtn = document.getElementById('signupBtn');
     const message = document.getElementById('message');
 
-    function handleSubmit(e) {
-      e.preventDefault();
-      message.textContent = "";
+    // Google Form URL for roster submission (POST endpoint)
+    const googleFormURL = "https://docs.google.com/forms/d/e/1FAIpQLSc_9Kv1IKRvnDndhLCy0Bt73hN4oKqgEGY_MQH1sX2dnA2kig/formResponse";
+
+    // Entry IDs from your Google Form for extra fields
+    const entryIDs = {
+      firstName: "entry.1530938677",
+      ivaoCID: "entry.583736312",
+      vatsimVID: "entry.1060043433"
+    };
+
+    signupBtn.onclick = async () => {
       message.style.color = "#f87171";
+      message.textContent = "";
 
-      const firstName = document.getElementById('firstName').value.trim();
-      const ivaoCID = document.getElementById('ivaoCID').value.trim();
-      const vatsimVID = document.getElementById('vatsimVID').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value.trim();
-
-      if (!firstName || !ivaoCID || !vatsimVID || !email || !password) {
-        message.textContent = "Please fill out all fields.";
+      // Basic validation
+      if (!firstNameInput.value.trim() || !ivaoCIDInput.value.trim() || !vatsimVIDInput.value.trim() || !emailInput.value.trim() || !passwordInput.value.trim()) {
+        message.textContent = "Please fill in all fields.";
         return;
       }
 
-      submitBtn.disabled = true;
-      submitBtn.textContent = "Signing up...";
+      signupBtn.disabled = true;
+      signupBtn.textContent = "Signing up...";
 
-      // Create user with Firebase Auth
-      createUserWithEmailAndPassword(auth, email, password)
-        .then(() => {
-          // Submit additional info to Google Forms
-          form.submit();
+      try {
+        // Create user in Firebase Auth
+        await createUserWithEmailAndPassword(auth, emailInput.value.trim(), passwordInput.value.trim());
 
-          message.style.color = "lightgreen";
-          message.textContent = "Sign up successful! Redirecting to login...";
+        // Prepare form data for Google Sheet
+        const formData = new FormData();
+        formData.append(entryIDs.firstName, firstNameInput.value.trim());
+        formData.append(entryIDs.ivaoCID, ivaoCIDInput.value.trim());
+        formData.append(entryIDs.vatsimVID, vatsimVIDInput.value.trim());
 
-          setTimeout(() => {
-            window.location.href = 'login.html';
-          }, 3000);
-        })
-        .catch((error) => {
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Sign Up";
-          message.textContent = error.message;
+        // Submit form data to Google Forms
+        await fetch(googleFormURL, {
+          method: "POST",
+          mode: "no-cors",
+          body: formData
         });
-    }
+
+        message.style.color = "lightgreen";
+        message.textContent = "Sign up successful! Redirecting...";
+
+        // Redirect to login page after a short delay
+        setTimeout(() => {
+          window.location.href = "login.html";
+        }, 1500);
+
+      } catch (error) {
+        message.style.color = "#f87171";
+        message.textContent = error.message;
+      } finally {
+        signupBtn.disabled = false;
+        signupBtn.textContent = "Sign Up";
+      }
+    };
   </script>
 </body>
 </html>
