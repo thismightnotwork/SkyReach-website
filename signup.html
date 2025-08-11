@@ -100,6 +100,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
     // Firebase config
     const firebaseConfig = {
@@ -114,6 +115,7 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getFirestore(app);
 
     const firstNameInput = document.getElementById('firstName');
     const ivaoCIDInput = document.getElementById('ivaoCID');
@@ -123,21 +125,10 @@
     const signupBtn = document.getElementById('signupBtn');
     const message = document.getElementById('message');
 
-    // Google Form URL for roster submission (POST endpoint)
-    const googleFormURL = "https://docs.google.com/forms/d/e/1FAIpQLSc_9Kv1IKRvnDndhLCy0Bt73hN4oKqgEGY_MQH1sX2dnA2kig/formResponse";
-
-    // Entry IDs from your Google Form for extra fields
-    const entryIDs = {
-      firstName: "entry.1530938677",
-      ivaoCID: "entry.583736312",
-      vatsimVID: "entry.1060043433"
-    };
-
     signupBtn.onclick = async () => {
       message.style.color = "#f87171";
       message.textContent = "";
 
-      // Basic validation
       if (!firstNameInput.value.trim() || !ivaoCIDInput.value.trim() || !vatsimVIDInput.value.trim() || !emailInput.value.trim() || !passwordInput.value.trim()) {
         message.textContent = "Please fill in all fields.";
         return;
@@ -147,26 +138,23 @@
       signupBtn.textContent = "Signing up...";
 
       try {
-        // Create user in Firebase Auth
-        await createUserWithEmailAndPassword(auth, emailInput.value.trim(), passwordInput.value.trim());
+        // Create user with email and password
+        const userCredential = await createUserWithEmailAndPassword(auth, emailInput.value.trim(), passwordInput.value.trim());
+        const user = userCredential.user;
 
-        // Prepare form data for Google Sheet
-        const formData = new FormData();
-        formData.append(entryIDs.firstName, firstNameInput.value.trim());
-        formData.append(entryIDs.ivaoCID, ivaoCIDInput.value.trim());
-        formData.append(entryIDs.vatsimVID, vatsimVIDInput.value.trim());
-
-        // Submit form data to Google Forms
-        await fetch(googleFormURL, {
-          method: "POST",
-          mode: "no-cors",
-          body: formData
+        // Save extra info to Firestore in users collection
+        const userDocRef = doc(db, "users", user.uid);
+        await setDoc(userDocRef, {
+          firstName: firstNameInput.value.trim(),
+          ivaoCID: ivaoCIDInput.value.trim(),
+          vatsimVID: vatsimVIDInput.value.trim(),
+          email: emailInput.value.trim(),
+          createdAt: new Date()
         });
 
         message.style.color = "lightgreen";
         message.textContent = "Sign up successful! Redirecting...";
 
-        // Redirect to login page after a short delay
         setTimeout(() => {
           window.location.href = "login.html";
         }, 1500);
