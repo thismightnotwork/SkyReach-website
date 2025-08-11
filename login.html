@@ -119,7 +119,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, getIdTokenResult } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA92I8ATCslzGoveL_LFKproCkI0clq5XE",
@@ -148,17 +148,38 @@
         return;
       }
       signInWithEmailAndPassword(auth, email, password)
-        .then(() => {
-          window.location.href = 'members/index.html'; // redirect after login
+        .then(async (userCredential) => {
+          const user = userCredential.user;
+          const idTokenResult = await getIdTokenResult(user, /* forceRefresh */ true);
+
+          // Check for admin claim (you need to set this custom claim in Firebase backend)
+          const isAdmin = idTokenResult.claims.admin === true;
+
+          localStorage.setItem('isAdmin', isAdmin ? 'true' : 'false');
+
+          if (isAdmin) {
+            window.location.href = '/admin/event-selection.html';
+          } else {
+            window.location.href = '/members/index.html';
+          }
         })
         .catch(e => {
           message.textContent = e.message;
         });
     };
 
-    onAuthStateChanged(auth, user => {
+    onAuthStateChanged(auth, async (user) => {
       if (user) {
-        window.location.href = 'members/index.html'; // already logged in redirect
+        // User is signed in, check admin claim
+        const idTokenResult = await getIdTokenResult(user);
+        const isAdmin = idTokenResult.claims.admin === true;
+        localStorage.setItem('isAdmin', isAdmin ? 'true' : 'false');
+
+        if (isAdmin) {
+          window.location.href = '/admin/event-selection.html';
+        } else {
+          window.location.href = '/members/index.html';
+        }
       }
     });
   </script>
