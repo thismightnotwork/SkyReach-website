@@ -63,7 +63,7 @@
       background-color: #1e40af;
     }
 
-    /* Main content styles (keep your original My Account styles) */
+    /* Main content styles */
     main {
       max-width: 900px;
       margin: 2rem auto;
@@ -240,18 +240,12 @@
     const emailEl = document.getElementById('email');
     const hubEl = document.getElementById('hub');
     const rankEl = document.getElementById('rank');
-    const newskyEl = document.getElementById('newskyId');
-    const hoursEl = document.getElementById('hours');
-    const flightsEl = document.getElementById('flights');
-    const themeEl = document.getElementById('theme');
     const timezoneEl = document.getElementById('timezone');
     const notificationsEl = document.getElementById('notifications');
     const joinedAtEl = document.getElementById('joinedAt');
 
     const saveBtn = document.getElementById('saveBtn');
     const resetPwdBtn = document.getElementById('resetPwdBtn');
-    // Using the logout button as in Members Area
-    // const logoutBtn = document.getElementById('logoutBtn'); // No longer needed
 
     let currentUid = null;
     let userDocRef = null;
@@ -272,12 +266,8 @@
           role: 'Pilot',
           hub: 'EGCC',
           rank: 'Trainee',
-          newskyID: '',
           joinedAt: serverTimestamp(),
-          hours: 0,
-          flights: 0,
-          settings: { theme: 'dark', timezone: 'Europe/London', notifications: true },
-          avatarUrl: ''
+          settings: { timezone: 'Europe/London', notifications: true },
         }, { merge: true });
       }
 
@@ -289,10 +279,6 @@
         emailEl.value = data.email || (user.email || '');
         hubEl.value = data.hub || 'EGCC';
         rankEl.value = data.rank || 'Trainee';
-        newskyEl.value = data.newskyID || '';
-        hoursEl.value = data.hours ?? 0;
-        flightsEl.value = data.flights ?? 0;
-        themeEl.value = data.settings?.theme || 'dark';
         timezoneEl.value = data.settings?.timezone || 'Europe/London';
         notificationsEl.checked = !!data.settings?.notifications;
 
@@ -309,12 +295,7 @@
         const updates = {
           displayName: newDisplayName,
           hub: hubEl.value,
-          // rank NOT updated to keep it disabled
-          newskyID: newskyEl.value.trim(),
-          hours: Number(hoursEl.value) || 0,
-          flights: Number(flightsEl.value) || 0,
           settings: {
-            theme: themeEl.value,
             timezone: timezoneEl.value.trim() || 'Europe/London',
             notifications: !!notificationsEl.checked
           }
