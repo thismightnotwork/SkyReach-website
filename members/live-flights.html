@@ -284,7 +284,7 @@
         dep = f.flight_plan?.departure || f.departure || '???';
         arr = f.flight_plan?.arrival || f.arrival || '???';
         depTime = formatHHMM(f.flight_plan?.deptime || f.deptime);
-        arrTime = formatHHMM(f.flight_plan?.arrivaltime || f.arrivetime);
+        arrTime = formatHHMM(f.flight_plan?.arrivaltime || f.eArrivaltime);
         aircraft = f.flight_plan?.aircraft_short || f.flight_plan?.aircraft || f.aircraft_short || f.aircraft || 'N/A';
       } else {
         dep = f.flightPlan?.departureId || f.departure || '???';
@@ -321,6 +321,14 @@
       sidebarRightEl.classList.remove('visible');
       sidebarLeftEl.classList.remove('hidden');
       mapEl.classList.remove('full-width');
+      flightDetailsEl.innerHTML = 'Click an aircraft to view details.';
+    }
+
+    // New: hide both sidebars and expand map
+    function hideBothSidebars() {
+      sidebarRightEl.classList.remove('visible');
+      sidebarLeftEl.classList.add('hidden');
+      mapEl.classList.add('full-width');
       flightDetailsEl.innerHTML = 'Click an aircraft to view details.';
     }
 
@@ -428,7 +436,7 @@
           statusEl.textContent = 'No flights found.';
           flightsListEl.innerHTML = '';
           clearMarkers();
-          hideRightSidebar();
+          hideBothSidebars();
           return;
         }
 
@@ -446,9 +454,9 @@
       if (icaoInput.value.length > 3) icaoInput.value = icaoInput.value.slice(0, 3);
     };
 
-    // Map click: hide right sidebar, show left sidebar
+    // On map click (not on marker), hide both sidebars and expand map
     map.on('click', () => {
-      hideRightSidebar();
+      hideBothSidebars();
     });
 
     // Initial load
