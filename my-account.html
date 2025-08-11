@@ -240,13 +240,12 @@
       }
 
       try {
-        // Show loading state
         hoursFlownSpan.textContent = 'Loading...';
         flightsCountSpan.textContent = 'Loading...';
         landingRateSpan.textContent = 'Loading...';
         newskyStatsDiv.style.display = 'block';
 
-        // NewSky API URL for hex ID
+        // NewSky API URL
         const url = `https://newsky-flight.com/api/v1/pilots/${newskyID}?token=${newskyToken}`;
 
         const response = await fetch(url);
@@ -297,6 +296,9 @@
           displayName: newDisplayName,
           newskyID: newskyID
         });
+
+        // After save, fetch NewSky stats and update display immediately
+        await fetchNewSkyStats(newskyID);
 
         alert('Profile saved successfully!');
       } catch (err) {
