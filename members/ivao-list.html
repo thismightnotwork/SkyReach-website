@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>SkyReach - IVAO Flight Board</title>
-<link rel="icon" type="image/png" href="/assets/logo.png" />
+  <link rel="icon" type="image/png" href="/assets/logo.png" />
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -101,6 +101,16 @@
     th {
       background-color: rgba(255, 255, 255, 0.1);
     }
+
+    /* Footer styling */
+    footer {
+      text-align: center;
+      padding: 1rem 0;
+      background: #1e293b;
+      color: #ccc;
+      font-size: 0.9rem;
+      margin-top: 40px;
+    }
   </style>
 </head>
 <body>
@@ -110,7 +120,6 @@
       <a href="ivao-list.html">IVAO List</a>
       <a href="vatsim-list.html">VATSIM List</a>
       <a href="live-flights.html">Live Flights</a>
-     
       <a href="events.html">Events</a>
       <a href="events-roster.html">Event Roster</a>
       <button id="logoutBtn">Log Out</button>
@@ -301,6 +310,7 @@
       update();
     }, 10000);
   </script>
+
   <footer>
     &copy; 2025 SkyReach Virtual Airline — All rights reserved.
   </footer>
