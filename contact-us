@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SkyReach - Contact Us</title>
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0; padding: 0;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+    }
+    header {
+      background: #1e293b;
+      padding: 1rem;
+    }
+    header img {
+      height: 60px;
+      vertical-align: middle;
+    }
+    nav a {
+      color: #93c5fd;
+      margin: 0 1rem;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+    main {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    #banner {
+      width: 100%;
+      max-height: 250px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+    }
+    footer {
+      margin-top: 3rem;
+      font-size: 0.9rem;
+      color: #94a3b8;
+      padding-bottom: 1rem;
+    }
+    .contact-section {
+      margin-top: 2rem;
+    }
+    .contact-section a {
+      display: block;
+      font-size: 1.2rem;
+      margin: 0.8rem 0;
+      color: #93c5fd;
+      text-decoration: none;
+    }
+    .contact-section a:hover {
+      text-decoration: underline;
+    }
+    .discord-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background-color: #5865F2;
+      padding: 0.7rem 1.5rem;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      color: white;
+      text-decoration: none;
+      margin-top: 1.5rem;
+    }
+    .discord-btn:hover {
+      background-color: #4752C4;
+    }
+    .discord-btn img {
+      height: 24px;
+      width: 24px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="assets/logo.png" alt="SkyReach Logo" />
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="login.html">Login</a>
+      <a href="contact-us.html">Contact Us</a>
+    </nav>
+  </header>
+
+  <main>
+    <img id="banner" src="assets/banner.png" alt="SkyReach Banner" />
+    <h1>Contact Us</h1>
+    <p>If you have any questions, our team is here to help you.</p>
+
+    <div class="contact-section">
+      <a href="mailto:help@skyreachuk.co.uk">help@skyreachuk.co.uk</a>
+      <a href="mailto:staff@skyreachuk.co.uk">staff@skyreachuk.co.uk</a>
+    </div>
+
+    <a class="discord-btn" href="https://discord.gg/akv3yKkke8" target="_blank">
+      <img src="assets/discord-icon.png" alt="Discord Icon" />
+      Join our Discord
+    </a>
+  </main>
+
+  <footer>
+    &copy; 2025 SkyReach Virtual Airline — All rights reserved.
+  </footer>
+</body>
+</html>
