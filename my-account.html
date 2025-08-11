@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SkyReach - My Account</title>
+  <link rel="icon" type="image/png" href="/assets/logo.png" />
+
+  <style>
+    /* === Style copied to match your login page === */
+    :root {
+      --bg: #0f172a;
+      --panel: #1e293b;
+      --muted: #94a3b8;
+      --accent: #2563eb;
+      --accent-hover: #1e40af;
+      --card-shadow: 0 0 15px rgba(37, 99, 235, 0.15);
+      --glass: rgba(255,255,255,0.03);
+    }
+    html,body { height:100%; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0; padding: 0;
+      background: var(--bg);
+      color: white;
+      -webkit-font-smoothing:antialiased;
+      text-align: center;
+    }
+    header {
+      background: var(--panel);
+      padding: 1rem;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:1rem;
+    }
+    header img { height:60px; vertical-align:middle; }
+    nav { display:flex; gap:1rem; align-items:center; }
+    nav a {
+      color: #93c5fd;
+      text-decoration:none;
+      font-weight:bold;
+    }
+    nav a:hover { text-decoration:underline; }
+    main { max-width:1000px; margin:2rem auto; padding:0 1rem; text-align:left; }
+    .page-title { margin:0 0 8px 0; font-size:22px; }
+    .lead { color:var(--muted); margin-bottom:16px; }
+
+    /* card/layout */
+    .grid { display:grid; grid-template-columns:320px 1fr; gap:20px; align-items:start; }
+    @media (max-width:880px){ .grid { grid-template-columns: 1fr; } }
+
+    .card {
+      background: var(--panel);
+      padding:18px;
+      border-radius:12px;
+      box-shadow: var(--card-shadow);
+    }
+
+    /* avatar */
+    .avatar-wrap { display:flex; flex-direction:column; align-items:center; gap:12px; }
+    .avatar { width:140px; height:140px; border-radius:50%; object-fit:cover; border:3px solid rgba(255,255,255,0.06); background:var(--glass) }
+    .fileLabel {
+      display:inline-block;
+      padding:8px 10px;
+      border-radius:8px;
+      background:var(--glass);
+      cursor:pointer;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    /* form */
+    label { display:block; font-size:13px; color:var(--muted); margin-top:12px; }
+    input, select, textarea {
+      width:100%;
+      padding:10px;
+      margin-top:6px;
+      border-radius:6px;
+      border:none;
+      background:#334155;
+      color:white;
+      box-sizing:border-box;
+    }
+    input::placeholder{ color:var(--muted); }
+    .row { display:flex; gap:10px; }
+    .small { font-size:13px; color:var(--muted); }
+
+    /* buttons */
+    button {
+      width:100%;
+      padding:10px;
+      margin-top:12px;
+      border-radius:6px;
+      border:none;
+      background:var(--accent);
+      color:white;
+      font-weight:bold;
+      cursor:pointer;
+    }
+    button:hover { background:var(--accent-hover); }
+    .btn-ghost {
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.06);
+      color:var(--muted);
+      font-weight:600;
+    }
+
+    footer {
+      margin-top:32px;
+      font-size:0.9rem;
+      color:var(--muted);
+      padding-bottom:1rem;
+      text-align:center;
+      background:transparent;
+    }
+
+    table { width:100%; border-collapse:collapse; margin-top:8px; }
+    th,td { text-align:left; padding:8px; border-bottom:1px solid rgba(255,255,255,0.03); font-size:13px; }
+    .muted { color:var(--muted); }
+    .progressText { font-size:13px; color:var(--muted); margin-top:6px }
+  </style>
+</head>
+<body>
+  <header>
+    <div style="display:flex;align-items:center;gap:16px">
+      <img src="/assets/logo.png" alt="SkyReach Logo" />
+      <div style="display:none"><!-- reserved --></div>
+    </div>
+
+    <nav>
+      <a href="/index.html">Home</a>
+      <a href="/login.html">Login</a>
+      <a href="/signup.html">Sign Up</a>
+      <a href="/contact-us.html">Contact Us</a>
+      <button id="logoutTopBtn" style="background:var(--accent);border:none;padding:8px 10px;border-radius:6px;color:#fff;cursor:pointer">Log Out</button>
+    </nav>
+  </header>
+
+  <main>
+    <h1 class="page-title">My Account</h1>
+    <p class="lead">View and edit your SkyReach profile. Avatar uploads are stored in Firebase Storage.</p>
+
+    <div class="grid">
+      <!-- left column -->
+      <div class="card">
+        <div class="avatar-wrap">
+          <img id="avatarImg" class="avatar" src="/assets/default-avatar.png" alt="Avatar">
+          <label class="fileLabel">Choose avatar
+            <input id="avatarFile" type="file" accept="image/*" style="display:none">
+          </label>
+          <div id="uploadProgress" class="progressText"></div>
+          <div style="width:100%;text-align:center">
+            <div id="displayNameTitle" style="font-weight:700">—</div>
+            <div class="small" id="roleAndHub">—</div>
+          </div>
+        </div>
+
+        <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)">
+
+        <div>
+          <button id="saveAvatarBtn" class="btn-ghost">Upload selected avatar</button>
+        </div>
+      </div>
+
+      <!-- right column -->
+      <div>
+        <div class="card">
+          <label>Display Name</label>
+          <input id="displayName" placeholder="Name (what other pilots see)">
+
+          <label>Email (can't change here)</label>
+          <input id="email" type="email" disabled>
+
+          <label>Hub</label>
+          <select id="hub">
+            <option value="EGCC">Manchester (EGCC)</option>
+            <option value="EGGW">Luton (EGGW)</option>
+            <option value="EGKK">Gatwick (EGKK)</option>
+            <option value="EGPH">Edinburgh (EGPH)</option>
+          </select>
+
+          <label>Rank</label>
+          <input id="rank" placeholder="Trainee / First Officer / Captain">
+
+          <label>NewSky ID</label>
+          <input id="newskyId" placeholder="Your NewSky pilot ID">
+
+          <div class="row">
+            <div style="flex:1">
+              <label>Hours</label>
+              <input id="hours" type="number" min="0" step="1">
+            </div>
+            <div style="flex:1">
+              <label>Flights</label>
+              <input id="flights" type="number" min="0" step="1">
+            </div>
+          </div>
+
+          <label>Theme</label>
+          <select id="theme">
+            <option value="dark">Dark</option>
+            <option value="light">Light</option>
+          </select>
+
+          <label>Timezone</label>
+          <input id="timezone" placeholder="Europe/London">
+
+          <label><input id="notifications" type="checkbox" style="vertical-align:middle"> Enable notifications (email/discord)</label>
+
+          <div class="row" style="margin-top:12px">
+            <button id="saveBtn">Save changes</button>
+            <button id="resetPwdBtn" class="btn-ghost">Send password reset</button>
+          </div>
+
+          <div style="margin-top:10px">
+            <button id="logoutBtn" class="btn-ghost">Log out</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:16px">
+          <strong>Account info</strong>
+          <div class="small muted" style="margin-top:6px">Joined: <span id="joinedAt">—</span></div>
+          <div class="small muted">Last updated live from Firestore</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2025 SkyReach Virtual Airline — All rights reserved.
+  </footer>
+
+  <!-- ===== Firebase + App logic ===== -->
+  <script type="module">
+    // ---------- IMPORTS ----------
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+    import {
+      getAuth, onAuthStateChanged, signOut, updateProfile, sendPasswordResetEmail
+    } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+    import {
+      getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+    import {
+      getStorage, ref, uploadBytesResumable, getDownloadURL
+    } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-storage.js";
+
+    // ---------- FIREBASE CONFIG (you gave this) ----------
+    const firebaseConfig = {
+      apiKey: "AIzaSyA92I8ATCslzGoveL_LFKproCkI0clq5XE",
+      authDomain: "skyreach-login.firebaseapp.com",
+      projectId: "skyreach-login",
+      storageBucket: "skyreach-login.firebasestorage.app",
+      messagingSenderId: "531909303327",
+      appId: "1:531909303327:web:58f4b25a6b8023ef87c92a",
+      measurementId: "G-3XKSQ6W4PY"
+    };
+
+    // ---------- INIT ----------
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    // ---------- UI ELEMENTS ----------
+    const avatarFile = document.getElementById('avatarFile');
+    const avatarImg = document.getElementById('avatarImg');
+    const saveAvatarBtn = document.getElementById('saveAvatarBtn');
+    const uploadProgress = document.getElementById('uploadProgress');
+
+    const displayNameEl = document.getElementById('displayName');
+    const emailEl = document.getElementById('email');
+    const hubEl = document.getElementById('hub');
+    const rankEl = document.getElementById('rank');
+    const newskyEl = document.getElementById('newskyId');
+    const hoursEl = document.getElementById('hours');
+    const flightsEl = document.getElementById('flights');
+    const themeEl = document.getElementById('theme');
+    const timezoneEl = document.getElementById('timezone');
+    const notificationsEl = document.getElementById('notifications');
+
+    const saveBtn = document.getElementById('saveBtn');
+    const resetPwdBtn = document.getElementById('resetPwdBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const logoutTopBtn = document.getElementById('logoutTopBtn');
+
+    const displayNameTitle = document.getElementById('displayNameTitle');
+    const roleAndHub = document.getElementById('roleAndHub');
+    const joinedAtEl = document.getElementById('joinedAt');
+
+    let currentUid = null;
+    let userDocRef = null;
+
+    // ---------- AUTH GUARD ----------
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        // not signed in -> send to login
+        window.location.href = "/login.html";
+        return;
+      }
+
+      currentUid = user.uid;
+      userDocRef = doc(db, 'users', currentUid);
+
+      // ensure user doc exists (create default if missing)
+      const docSnap = await getDoc(userDocRef);
+      if (!docSnap.exists()) {
+        await setDoc(userDocRef, {
+          displayName: user.displayName || (user.email ? user.email.split('@')[0] : 'Pilot'),
+          email: user.email || '',
+          role: 'Pilot',
+          hub: 'EGCC',
+          rank: 'Trainee',
+          newskyID: '',
+          joinedAt: serverTimestamp(),
+          hours: 0,
+          flights: 0,
+          settings: { theme: 'dark', timezone: 'Europe/London', notifications: true },
+          avatarUrl: ''
+        }, { merge: true });
+      }
+
+      // subscribe to live updates for the user doc
+      onSnapshot(userDocRef, (s) => {
+        const data = s.data();
+        if (!data) return;
+        displayNameEl.value = data.displayName || '';
+        emailEl.value = data.email || (user.email || '');
+        hubEl.value = data.hub || 'EGCC';
+        rankEl.value = data.rank || 'Trainee';
+        newskyEl.value = data.newskyID || '';
+        hoursEl.value = data.hours ?? 0;
+        flightsEl.value = data.flights ?? 0;
+        themeEl.value = data.settings?.theme || 'dark';
+        timezoneEl.value = data.settings?.timezone || 'Europe/London';
+        notificationsEl.checked = !!data.settings?.notifications;
+        displayNameTitle.textContent = data.displayName || '';
+        roleAndHub.textContent = `${data.rank || 'Trainee'} • ${data.hub || 'EGCC'}`;
+        joinedAtEl.textContent = data.joinedAt && data.joinedAt.toDate ? data.joinedAt.toDate().toLocaleDateString() : '—';
+        if (data.avatarUrl) avatarImg.src = data.avatarUrl;
+      });
+    });
+
+    // ---------- SAVE PROFILE ----------
+    saveBtn.addEventListener('click', async () => {
+      try {
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving...';
+
+        const newDisplayName = displayNameEl.value.trim();
+        const updates = {
+          displayName: newDisplayName,
+          hub: hubEl.value,
+          rank: rankEl.value.trim(),
+          newskyID: newskyEl.value.trim(),
+          hours: Number(hoursEl.value) || 0,
+          flights: Number(flightsEl.value) || 0,
+          settings: {
+            theme: themeEl.value,
+            timezone: timezoneEl.value.trim() || 'Europe/London',
+            notifications: !!notificationsEl.checked
+          }
+        };
+
+        // update Firebase Auth displayName (so other firebase features show correct name)
+        if (auth.currentUser && auth.currentUser.displayName !== newDisplayName) {
+          await updateProfile(auth.currentUser, { displayName: newDisplayName });
+        }
+
+        // write to Firestore
+        await updateDoc(userDocRef, updates);
+        saveBtn.textContent = 'Saved';
+        setTimeout(()=>{ saveBtn.textContent = 'Save changes'; }, 1200);
+      } catch (err) {
+        alert('Error saving profile: ' + (err.message || err));
+        saveBtn.textContent = 'Save changes';
+      } finally {
+        saveBtn.disabled = false;
+      }
+    });
+
+    // ---------- AVATAR UPLOAD ----------
+    // click label behaviour
+    document.querySelector('.fileLabel').addEventListener('click', () => avatarFile.click());
+
+    saveAvatarBtn.addEventListener('click', async () => {
+      const file = avatarFile.files[0];
+      if (!file) { alert('Choose a file first'); return; }
+      if (!currentUid) return alert('No user signed in');
+
+      // validation
+      if (file.size > 3 * 1024 * 1024) { alert('Max avatar size 3MB'); return; }
+      const ext = file.name.split('.').pop().toLowerCase();
+      if (!['jpg','jpeg','png','webp'].includes(ext)) { alert('Allowed formats: JPG / PNG / WEBP'); return; }
+
+      try {
+        uploadProgress.textContent = 'Uploading avatar...';
+        const storageRef = ref(storage, `avatars/${currentUid}/avatar.${ext}`);
+        const uploadTask = uploadBytesResumable(storageRef, file);
+
+        uploadTask.on('state_changed',
+          (snapshot) => {
+            const pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+            uploadProgress.textContent = `Upload ${pct}%`;
+          },
+          (error) => {
+            uploadProgress.textContent = 'Upload failed';
+            alert('Upload error: ' + error.message);
+          },
+          async () => {
+            const url = await getDownloadURL(uploadTask.snapshot.ref);
+            await updateDoc(userDocRef, { avatarUrl: url });
+            avatarImg.src = url;
+            uploadProgress.textContent = 'Uploaded';
+            setTimeout(()=> uploadProgress.textContent = '', 1400);
+          }
+        );
+      } catch (err) {
+        alert('Upload error: ' + (err.message || err));
+      }
+    });
+
+    // ---------- RESET PASSWORD ----------
+    resetPwdBtn.addEventListener('click', async () => {
+      const email = emailEl.value;
+      if (!email) { alert('No email'); return; }
+      try {
+        await sendPasswordResetEmail(auth, email);
+        alert('Password reset email sent to ' + email);
+      } catch (err) {
+        alert('Error sending reset email: ' + (err.message || err));
+      }
+    });
+
+    // ---------- LOGOUT ----------
+    async function doLogout() {
+      try {
+        await signOut(auth);
+        window.location.href = '/login.html';
+      } catch (err) {
+        alert('Logout failed: ' + (err.message || err));
+      }
+    }
+    logoutBtn.addEventListener('click', doLogout);
+    logoutTopBtn.addEventListener('click', doLogout);
+  </script>
+</body>
+</html>
