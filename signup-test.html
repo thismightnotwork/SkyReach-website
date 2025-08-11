@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SkyReach - Sign Up</title>
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0; padding: 0;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+    }
+    header {
+      background: #1e293b;
+      padding: 1rem;
+    }
+    header img {
+      height: 60px;
+      vertical-align: middle;
+    }
+    nav a {
+      color: #93c5fd;
+      margin: 0 1rem;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+    main {
+      max-width: 400px;
+      margin: 2rem auto;
+      padding: 1rem;
+      background: #1e293b;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(37, 99, 235, 0.5);
+    }
+    input, button {
+      width: 100%;
+      padding: 0.8rem;
+      margin: 0.5rem 0;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: none;
+      box-sizing: border-box;
+    }
+    input {
+      background: #334155;
+      color: white;
+    }
+    input::placeholder {
+      color: #94a3b8;
+    }
+    button {
+      background-color: #2563eb; /* same blue as login */
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      border: none;
+    }
+    button:hover {
+      background-color: #1e40af;
+    }
+    #message {
+      margin-top: 1rem;
+      min-height: 1.2rem;
+      color: #f87171;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="assets/logo.png" alt="SkyReach Logo" />
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="login.html">Login</a>
+      <a href="signup.html">Sign Up</a>
+      <a href="contact-us.html">Contact Us</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Create an Account</h1>
+
+    <input id="firstName" type="text" placeholder="First Name" autocomplete="given-name" required />
+    <input id="ivaoCID" type="text" placeholder="IVAO CID" required />
+    <input id="vatsimVID" type="text" placeholder="VATSIM VID" required />
+
+    <input id="email" type="email" placeholder="Email" autocomplete="email" required />
+    <input id="password" type="password" placeholder="Password" autocomplete="new-password" required />
+
+    <button id="signupBtn">Sign Up</button>
+
+    <div id="message"></div>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyA92I8ATCslzGoveL_LFKproCkI0clq5XE",
+      authDomain: "skyreach-login.firebaseapp.com",
+      projectId: "skyreach-login",
+      storageBucket: "skyreach-login.firebasestorage.app",
+      messagingSenderId: "531909303327",
+      appId: "1:531909303327:web:58f4b25a6b8023ef87c92a",
+      measurementId: "G-3XKSQ6W4PY"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const firstNameInput = document.getElementById('firstName');
+    const ivaoCIDInput = document.getElementById('ivaoCID');
+    const vatsimVIDInput = document.getElementById('vatsimVID');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const signupBtn = document.getElementById('signupBtn');
+    const message = document.getElementById('message');
+
+    signupBtn.onclick = async () => {
+      message.style.color = "#f87171";
+      message.textContent = "";
+
+      if (!firstNameInput.value.trim() || !ivaoCIDInput.value.trim() || !vatsimVIDInput.value.trim() || !emailInput.value.trim() || !passwordInput.value.trim()) {
+        message.textContent = "Please fill in all fields.";
+        return;
+      }
+
+      signupBtn.disabled = true;
+      signupBtn.textContent = "Signing up...";
+
+      try {
+        // Create user with email and password
+        const userCredential = await createUserWithEmailAndPassword(auth, emailInput.value.trim(), passwordInput.value.trim());
+        const user = userCredential.user;
+
+        // Save extra info to Firestore in users collection
+        const userDocRef = doc(db, "users", user.uid);
+        await setDoc(userDocRef, {
+          firstName: firstNameInput.value.trim(),
+          ivaoCID: ivaoCIDInput.value.trim(),
+          vatsimVID: vatsimVIDInput.value.trim(),
+          email: emailInput.value.trim(),
+          createdAt: new Date()
+        });
+
+        message.style.color = "lightgreen";
+        message.textContent = "Sign up successful! Redirecting...";
+
+        setTimeout(() => {
+          window.location.href = "login.html";
+        }, 1500);
+
+      } catch (error) {
+        message.style.color = "#f87171";
+        message.textContent = error.message;
+      } finally {
+        signupBtn.disabled = false;
+        signupBtn.textContent = "Sign Up";
+      }
+    };
+  </script>
+</body>
+</html>
