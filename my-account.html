@@ -6,7 +6,6 @@
   <title>SkyReach Members Area - My Account</title>
   <link rel="icon" type="image/png" href="/assets/logo.png" />
 
-  <!-- PWA and iOS stuff copied from your example -->
   <link rel="manifest" href="/manifest.json" />
   <link rel="apple-touch-icon" href="/assets/logo.png" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -140,15 +139,13 @@
       <input type="text" id="displayName" placeholder="Your display name" />
 
       <label for="newskyId">NewSky ID</label>
-      <input type="text" id="newskyId" placeholder="Your NewSky pilot ID (e.g. 12345)" />
+      <input type="text" id="newskyId" placeholder="Your NewSky pilot ID (hex string)" />
       <p class="small">
         How to find your NewSky ID:<br />
-        1. Log in to <a href="https://newsky-flight.com" target="_blank" style="color:#93c5fd;">NewSky website</a>.<br />
-        2. Click your profile and check the URL: your ID is the number at the end.<br />
-        Example URL: <code>https://newsky-flight.com/pilot/12345</code>
+        1. Log in to <a href="https://newsky.app" target="_blank" style="color:#93c5fd;">NewSky website</a>.<br />
+        2. Click your profile and check the URL: your ID is the long hex string at the end.<br />
+        Example URL: <code>https://newsky.app/pilot/67b7aa45dac6dc5765a8b7df</code>
       </p>
-
-      <button id="fetchStatsBtn">Fetch NewSky Stats</button>
 
       <div class="stats" id="newskyStats" style="display:none;">
         <h2>NewSky Pilot Stats</h2>
@@ -184,11 +181,9 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // UI elements
     const userEmailSpan = document.getElementById('userEmail');
     const displayNameInput = document.getElementById('displayName');
     const newskyIdInput = document.getElementById('newskyId');
-    const fetchStatsBtn = document.getElementById('fetchStatsBtn');
     const newskyStatsDiv = document.getElementById('newskyStats');
     const hoursFlownSpan = document.getElementById('hoursFlown');
     const flightsCountSpan = document.getElementById('flightsCount');
@@ -199,8 +194,16 @@
     let currentUid = null;
     let userDocRef = null;
 
-    // Your NewSky API token
     const newskyToken = 'SRH_IkQ2nFKheLXMpbYHqJVhSjjkOFJrM1';
+
+    // Debounce helper for input changes
+    function debounce(func, wait) {
+      let timeout;
+      return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+      };
+    }
 
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
@@ -218,8 +221,11 @@
         const data = docSnap.data();
         displayNameInput.value = data.displayName || '';
         newskyIdInput.value = data.newskyID || '';
+
+        if (newskyIdInput.value) {
+          fetchNewSkyStats(newskyIdInput.value);
+        }
       } else {
-        // If no doc exists, create default
         await setDoc(userDocRef, {
           displayName: user.displayName || '',
           newskyID: ''
@@ -227,19 +233,20 @@
       }
     });
 
-    // Fetch NewSky stats for the pilot ID
     async function fetchNewSkyStats(newskyID) {
-      if (!newskyID || isNaN(newskyID)) {
-        alert('Please enter a valid numeric NewSky ID');
+      if (!newskyID || newskyID.length < 10) {
+        newskyStatsDiv.style.display = 'none';
         return;
       }
 
       try {
-        fetchStatsBtn.disabled = true;
-        fetchStatsBtn.textContent = 'Fetching...';
+        // Show loading state
+        hoursFlownSpan.textContent = 'Loading...';
+        flightsCountSpan.textContent = 'Loading...';
+        landingRateSpan.textContent = 'Loading...';
+        newskyStatsDiv.style.display = 'block';
 
-        // NewSky API URL
-        // Docs: https://newsky-flight.com/developers/api/
+        // NewSky API URL for hex ID
         const url = `https://newsky-flight.com/api/v1/pilots/${newskyID}?token=${newskyToken}`;
 
         const response = await fetch(url);
@@ -252,27 +259,23 @@
           throw new Error(data.message || 'NewSky API error');
         }
 
-        // Data shape based on NewSky API pilot endpoint
         const pilot = data.data;
         hoursFlownSpan.textContent = pilot.hours.toFixed(1);
         flightsCountSpan.textContent = pilot.flights;
         landingRateSpan.textContent = pilot.landingrate.toFixed(1);
 
-        newskyStatsDiv.style.display = 'block';
       } catch (err) {
-        alert('Error fetching NewSky stats: ' + err.message);
         newskyStatsDiv.style.display = 'none';
-      } finally {
-        fetchStatsBtn.disabled = false;
-        fetchStatsBtn.textContent = 'Fetch NewSky Stats';
+        console.error('NewSky API error:', err);
       }
     }
 
-    fetchStatsBtn.addEventListener('click', () => {
+    // Auto-fetch stats when NewSky ID input changes (debounced)
+    newskyIdInput.addEventListener('input', debounce(() => {
       fetchNewSkyStats(newskyIdInput.value.trim());
-    });
+    }, 800));
 
-    // Save changes to Firestore and Firebase Auth (displayName)
+    // Save changes button
     saveBtn.addEventListener('click', async () => {
       const newDisplayName = displayNameInput.value.trim();
       const newskyID = newskyIdInput.value.trim();
@@ -286,12 +289,10 @@
       saveBtn.textContent = 'Saving...';
 
       try {
-        // Update Auth profile displayName
         if (auth.currentUser.displayName !== newDisplayName) {
           await updateProfile(auth.currentUser, { displayName: newDisplayName });
         }
 
-        // Update Firestore doc
         await updateDoc(userDocRef, {
           displayName: newDisplayName,
           newskyID: newskyID
@@ -306,13 +307,12 @@
       }
     });
 
-    // Logout
+    // Logout button
     logoutBtn.addEventListener('click', () => {
       signOut(auth).then(() => {
         window.location.href = '/login.html';
       });
     });
   </script>
-
 </body>
 </html>
