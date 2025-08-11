@@ -4,35 +4,49 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>SkyReach Members Area</title>
-  <link rel="icon" type="image/png" href="/assets/logo.png" />
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+
+  <!-- Manifest for PWA -->
+  <link rel="manifest" href="/manifest.json" />
+
+  <!-- Apple Touch Icon for iOS home screen -->
+  <link rel="apple-touch-icon" href="assets/logo.png" />
+
+  <!-- Meta tags for iOS standalone mode -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="SkyReach" />
+
   <style>
     body {
       font-family: Arial, sans-serif;
+      margin: 0; padding: 0;
       background: #0f172a;
       color: white;
-      margin: 0; padding: 0;
+      text-align: center;
     }
     header {
       background: #1e293b;
       padding: 1rem;
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
       flex-wrap: wrap;
     }
     header img {
       height: 50px;
+      vertical-align: middle;
     }
     nav {
       display: flex;
       flex-wrap: wrap;
-      align-items: center;
       gap: 1rem;
     }
     nav a {
       color: #93c5fd;
       text-decoration: none;
       font-weight: bold;
+      white-space: nowrap;
     }
     nav a:hover {
       text-decoration: underline;
@@ -41,7 +55,7 @@
       max-width: 900px;
       margin: 2rem auto;
       padding: 0 1rem;
-      text-align: center;
+      text-align: left;
       line-height: 1.6;
     }
     button#logoutBtn {
@@ -52,24 +66,37 @@
       color: white;
       cursor: pointer;
       white-space: nowrap;
+      font-weight: bold;
+      margin-left: 1rem;
     }
     button#logoutBtn:hover {
       background-color: #1e40af;
     }
-    /* Footer styling */
     footer {
-      text-align: center;
-      padding: 1rem 0;
-      background: #1e293b;
-      color: #ccc;
+      margin-top: 3rem;
       font-size: 0.9rem;
-      margin-top: 40px;
+      color: #94a3b8;
+      padding-bottom: 1rem;
+      text-align: center;
+    }
+    /* Responsive nav spacing */
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      nav {
+        justify-content: center;
+      }
+      main {
+        text-align: center;
+      }
     }
   </style>
 </head>
 <body>
   <header>
-    <img src="../assets/logo.png" alt="SkyReach Logo" />
+    <img src="assets/logo.png" alt="SkyReach Logo" />
     <nav>
       <a href="ivao-list.html">IVAO List</a>
       <a href="vatsim-list.html">VATSIM List</a>
@@ -79,6 +106,7 @@
       <button id="logoutBtn">Log Out</button>
     </nav>
   </header>
+
   <main>
     <h1>Welcome to SkyReach Members Area</h1>
 
@@ -110,13 +138,13 @@
 
     onAuthStateChanged(auth, user => {
       if (!user) {
-        window.location.href = "../login.html"; // Redirect if not logged in
+        window.location.href = "login.html"; // Redirect if not logged in
       }
     });
 
     document.getElementById('logoutBtn').onclick = () => {
       signOut(auth).then(() => {
-        window.location.href = "../login.html";
+        window.location.href = "login.html";
       });
     };
   </script>
