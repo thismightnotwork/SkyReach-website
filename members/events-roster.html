@@ -17,6 +17,7 @@
       color: white;
       display: flex;
       flex-direction: column;
+      min-height: 100vh;
     }
     header {
       background: #1e293b;
@@ -48,6 +49,8 @@
       max-width: 900px;
       margin: 2rem auto;
       padding: 0 1rem;
+      width: 100%;
+      box-sizing: border-box;
     }
     button#logoutBtn {
       background-color: #2563eb;
@@ -73,17 +76,25 @@
       padding-bottom: 6px;
       color: #ccc;
     }
+    /* Container divs full width */
+    #atcContainer, #pilotContainer {
+      width: 100%;
+      overflow-x: auto; /* horizontal scroll if table too wide */
+    }
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 10px;
       margin-bottom: 30px;
+      min-width: 600px; /* prevent too narrow tables */
+      table-layout: auto;
     }
     th, td {
       border: 1px solid #444;
-      padding: 8px;
+      padding: 8px 12px;
       text-align: left;
       color: white;
+      white-space: nowrap;
     }
     th {
       background: #222;
@@ -93,6 +104,9 @@
       font-size: 0.9rem;
       color: #94a3b8;
       padding: 1rem 0;
+      background: #1e293b;
+      border-top: 1px solid #334155;
+      margin-top: auto;
     }
   </style>
 </head>
@@ -143,38 +157,57 @@
     }
 
     async function loadAndDisplay() {
-      const bids = await fetchSheetData(formResponses2Sheet);
-      if (bids.length === 0) {
-        document.getElementById("eventTitle").textContent = "No bids found.";
-        return;
-      }
+      try {
+        const bids = await fetchSheetData(formResponses2Sheet);
+        if (bids.length === 0) {
+          document.getElementById("eventTitle").textContent = "No bids found.";
+          return;
+        }
+        bids.sort((a, b) => new Date(a[0]) - new Date(b[0]));
+        const eventName = bids[0][1];
+        document.getElementById("eventTitle").textContent = `Event: ${eventName}`;
 
-      bids.sort((a, b) => new Date(a[0]) - new Date(b[0]));
+        const eventBids = bids.filter(bid => bid[1] === eventName);
+        const atcBids = eventBids.filter(bid => bid[2].toLowerCase() !== "pilot");
+        const pilotBids = eventBids.filter(bid => bid[2].toLowerCase() === "pilot");
 
-      const eventName = bids[0][1];
-      document.getElementById("eventTitle").textContent = `Event: ${eventName}`;
+        const atcGrouped = groupBy(atcBids, bid => bid[2]);
+        const atcContainer = document.getElementById("atcContainer");
+        const pilotContainer = document.getElementById("pilotContainer");
 
-      const eventBids = bids.filter(bid => bid[1] === eventName);
-      const atcBids = eventBids.filter(bid => bid[2].toLowerCase() !== "pilot");
-      const pilotBids = eventBids.filter(bid => bid[2].toLowerCase() === "pilot");
+        atcContainer.innerHTML = "";
+        pilotContainer.innerHTML = "";
 
-      const atcGrouped = groupBy(atcBids, bid => bid[2]);
-      const atcContainer = document.getElementById("atcContainer");
-      const pilotContainer = document.getElementById("pilotContainer");
+        for (const position in atcGrouped) {
+          const heading = document.createElement("h2");
+          heading.textContent = position;
+          atcContainer.appendChild(heading);
 
-      atcContainer.innerHTML = "";
-      pilotContainer.innerHTML = "";
+          const table = document.createElement("table");
+          table.innerHTML = `
+            <thead>
+              <tr><th>Name</th><th>Callsign</th><th>Time</th></tr>
+            </thead>
+            <tbody>
+              ${atcGrouped[position].map(bid => `
+                <tr>
+                  <td>${bid[3]}</td>
+                  <td>${bid[4]}</td>
+                  <td>${bid[5]}</td>
+                </tr>
+              `).join("")}
+            </tbody>`;
+          atcContainer.appendChild(table);
+        }
 
-      for (const position in atcGrouped) {
-        const heading = document.createElement("h2");
-        heading.textContent = position;
-        atcContainer.appendChild(heading);
-
-        const table = document.createElement("table");
-        table.innerHTML = `
-          <thead><tr><th>Name</th><th>Callsign</th><th>Time</th></tr></thead>
+        // Pilots table
+        const pilotTable = document.createElement("table");
+        pilotTable.innerHTML = `
+          <thead>
+            <tr><th>Name</th><th>Callsign</th><th>Departure Time</th></tr>
+          </thead>
           <tbody>
-            ${atcGrouped[position].map(bid => `
+            ${pilotBids.map(bid => `
               <tr>
                 <td>${bid[3]}</td>
                 <td>${bid[4]}</td>
@@ -182,24 +215,13 @@
               </tr>
             `).join("")}
           </tbody>`;
-        atcContainer.appendChild(table);
+        pilotContainer.appendChild(pilotTable);
+
+      } catch (error) {
+        document.getElementById("eventTitle").textContent = "Failed to load roster.";
+        console.error(error);
       }
-
-      const pilotTable = document.createElement("table");
-      pilotTable.innerHTML = `
-        <thead><tr><th>Name</th><th>Callsign</th><th>Departure Time</th></tr></thead>
-        <tbody>
-          ${pilotBids.map(bid => `
-            <tr>
-              <td>${bid[3]}</td>
-              <td>${bid[4]}</td>
-              <td>${bid[5]}</td>
-            </tr>
-          `).join("")}
-        </tbody>`;
-      pilotContainer.appendChild(pilotTable);
     }
-
     loadAndDisplay();
   </script>
 
