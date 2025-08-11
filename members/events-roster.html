@@ -4,13 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>SkyReach Events Roster</title>
-<link rel="icon" type="image/png" href="/assets/logo.png" />
+  <link rel="icon" type="image/png" href="/assets/logo.png" />
   <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
     body {
       font-family: Arial, sans-serif;
       background: #0f172a;
       color: white;
-      margin: 0; padding: 0;
+      display: flex;
+      flex-direction: column;
     }
     header {
       background: #1e293b;
@@ -38,6 +44,7 @@
       text-decoration: underline;
     }
     main {
+      flex: 1;
       max-width: 900px;
       margin: 2rem auto;
       padding: 0 1rem;
@@ -81,6 +88,12 @@
     th {
       background: #222;
     }
+    footer {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #94a3b8;
+      padding: 1rem 0;
+    }
   </style>
 </head>
 <body>
@@ -90,7 +103,6 @@
       <a href="ivao-list.html">IVAO List</a>
       <a href="vatsim-list.html">VATSIM List</a>
       <a href="live-flights.html">Live Flights</a>
-    
       <a href="events.html">Events</a>
       <a href="events-roster.html">Event Roster</a>
       <button id="logoutBtn">Log Out</button>
@@ -100,12 +112,15 @@
   <main>
     <section id="content">
       <h1 id="eventTitle">Loading event...</h1>
-
       <div id="atcContainer"></div>
       <h2>Pilots</h2>
       <div id="pilotContainer"></div>
     </section>
   </main>
+
+  <footer>
+    &copy; 2025 SkyReach Virtual Airline — All rights reserved.
+  </footer>
 
   <script>
     const sheetId = "1V2Yy8J9Qlr7zHFUcrXlR-AGifubo-hZpNW6VsL5M-6s";
@@ -134,27 +149,22 @@
         return;
       }
 
-      // Sort by timestamp
       bids.sort((a, b) => new Date(a[0]) - new Date(b[0]));
 
       const eventName = bids[0][1];
       document.getElementById("eventTitle").textContent = `Event: ${eventName}`;
 
       const eventBids = bids.filter(bid => bid[1] === eventName);
-
       const atcBids = eventBids.filter(bid => bid[2].toLowerCase() !== "pilot");
       const pilotBids = eventBids.filter(bid => bid[2].toLowerCase() === "pilot");
 
       const atcGrouped = groupBy(atcBids, bid => bid[2]);
-
       const atcContainer = document.getElementById("atcContainer");
       const pilotContainer = document.getElementById("pilotContainer");
 
-      // Clear containers first
       atcContainer.innerHTML = "";
       pilotContainer.innerHTML = "";
 
-      // ATC Section
       for (const position in atcGrouped) {
         const heading = document.createElement("h2");
         heading.textContent = position;
@@ -175,7 +185,6 @@
         atcContainer.appendChild(table);
       }
 
-      // Pilot Section
       const pilotTable = document.createElement("table");
       pilotTable.innerHTML = `
         <thead><tr><th>Name</th><th>Callsign</th><th>Departure Time</th></tr></thead>
@@ -223,8 +232,5 @@
       });
     };
   </script>
-  <footer>
-    &copy; 2025 SkyReach Virtual Airline — All rights reserved.
-  </footer>
 </body>
 </html>
