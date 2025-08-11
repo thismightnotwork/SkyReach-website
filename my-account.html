@@ -5,18 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>SkyReach - My Account</title>
   <link rel="icon" type="image/png" href="/assets/logo.png" />
-
-  <!-- PWA manifest -->
   <link rel="manifest" href="/manifest.json" />
-
-  <!-- Apple Touch Icon for iOS home screen -->
   <link rel="apple-touch-icon" href="/assets/logo.png" />
-
-  <!-- Meta tags for iOS standalone mode -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="SkyReach" />
-
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -24,7 +17,6 @@
       color: white;
       margin: 0; padding: 0;
     }
-    /* Header styles from Members Area */
     header {
       background: #1e293b;
       padding: 1rem;
@@ -62,8 +54,6 @@
     button#logoutBtn:hover {
       background-color: #1e40af;
     }
-
-    /* Main content styles */
     main {
       max-width: 900px;
       margin: 2rem auto;
@@ -95,13 +85,12 @@
     input::placeholder {
       color: #94a3b8;
     }
-    .row {
+    .btn-group {
       display: flex;
-      gap: 10px;
+      gap: 12px;
+      flex-wrap: wrap;
       margin-top: 12px;
-    }
-    .row > div {
-      flex: 1;
+      justify-content: center;
     }
     button {
       background-color: #2563eb;
@@ -130,13 +119,6 @@
       display: inline-block;
       cursor: pointer;
     }
-    .btn-group {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 12px;
-      justify-content: center;
-    }
     #joinedAt {
       color: #94a3b8;
       font-size: 14px;
@@ -154,7 +136,6 @@
   </style>
 </head>
 <body>
-  <!-- Header copied exactly from Members Area -->
   <header>
     <img src="../assets/logo.png" alt="SkyReach Logo" />
     <nav>
@@ -331,7 +312,6 @@
       }
     });
 
-    // Logout button handler exactly like Members Area
     document.getElementById('logoutBtn').onclick = () => {
       signOut(auth).then(() => {
         window.location.href = "../login.html";
