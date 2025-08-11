@@ -6,6 +6,17 @@
   <title>SkyReach - Home</title>
   <link rel="icon" type="image/png" href="assets/logo.png" />
 
+  <!-- Manifest for PWA -->
+  <link rel="manifest" href="manifest.json" />
+
+  <!-- Apple Touch Icon for iOS home screen -->
+  <link rel="apple-touch-icon" href="assets/logo.png" />
+
+  <!-- Meta tags for iOS standalone mode -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="SkyReach" />
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -62,6 +73,48 @@
     button.login-btn:hover {
       background-color: #1e40af;
     }
+
+    /* iOS Install Prompt Styles */
+    #ios-install-prompt {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      background: #222;
+      color: white;
+      padding: 15px 20px;
+      border-radius: 10px;
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+      z-index: 9999;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      line-height: 1.4;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    #ios-install-prompt strong {
+      margin-right: 8px;
+      font-weight: 600;
+    }
+    #ios-install-prompt img {
+      height: 20px;
+      vertical-align: middle;
+      margin: 0 6px;
+    }
+    #dismiss-prompt {
+      background: transparent;
+      border: none;
+      color: #888;
+      font-size: 22px;
+      font-weight: bold;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0 6px;
+      margin-left: 15px;
+    }
   </style>
 </head>
 <body>
@@ -86,5 +139,39 @@
   <footer>
     &copy; 2025 SkyReach Virtual Airline — All rights reserved.
   </footer>
+
+  <!-- iOS Install Prompt -->
+  <div id="ios-install-prompt" role="alert" aria-live="polite" aria-label="Add to Home Screen prompt">
+    <div>
+      <strong>Install SkyReach</strong><br />
+      Tap <img src="assets/share-ios.png" alt="Share icon" /> then <em>Add to Home Screen</em> to install this app.
+    </div>
+    <button id="dismiss-prompt" aria-label="Dismiss add to home screen prompt">×</button>
+  </div>
+
+  <script>
+    function isIos() {
+      return /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+    }
+
+    function isInStandaloneMode() {
+      return ('standalone' in window.navigator) && window.navigator.standalone;
+    }
+
+    window.addEventListener('load', () => {
+      if (isIos() && !isInStandaloneMode()) {
+        if (localStorage.getItem('iosInstallPromptDismissed') === 'true') {
+          return; // Don't show if dismissed before
+        }
+        const prompt = document.getElementById('ios-install-prompt');
+        prompt.style.display = 'flex';
+
+        document.getElementById('dismiss-prompt').addEventListener('click', () => {
+          prompt.style.display = 'none';
+          localStorage.setItem('iosInstallPromptDismissed', 'true');
+        });
+      }
+    });
+  </script>
 </body>
 </html>
