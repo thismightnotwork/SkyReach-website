@@ -107,6 +107,7 @@
       max-width: 400px;
       margin-left: auto;
       margin-right: auto;
+      display: block; /* Always visible */
     }
     .stats p {
       margin: 0.4rem 0;
@@ -158,7 +159,7 @@
         Example URL: <code>https://newsky.app/pilot/67b7aa45dac6dc5765a8b7df</code>
       </p>
 
-      <div class="stats" id="newskyStats" style="display:none;">
+      <div class="stats" id="newskyStats">
         <h2>NewSky Pilot Stats</h2>
         <p><strong>Hours Flown:</strong> <span id="hoursFlown">-</span></p>
         <p><strong>Flights:</strong> <span id="flightsCount">-</span></p>
@@ -245,7 +246,10 @@
 
     async function fetchNewSkyStats(newskyID) {
       if (!newskyID || newskyID.length < 10) {
-        newskyStatsDiv.style.display = 'none';
+        hoursFlownSpan.textContent = '-';
+        flightsCountSpan.textContent = '-';
+        landingRateSpan.textContent = '-';
+        newskyStatsDiv.style.display = 'block'; // always visible
         return;
       }
 
@@ -274,7 +278,9 @@
         landingRateSpan.textContent = pilot.landingrate.toFixed(1);
 
       } catch (err) {
-        newskyStatsDiv.style.display = 'none';
+        hoursFlownSpan.textContent = '-';
+        flightsCountSpan.textContent = '-';
+        landingRateSpan.textContent = '-';
         console.error('NewSky API error:', err);
       }
     }
