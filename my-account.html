@@ -6,188 +6,205 @@
   <title>SkyReach - My Account</title>
   <link rel="icon" type="image/png" href="/assets/logo.png" />
 
+  <!-- PWA manifest -->
+  <link rel="manifest" href="/manifest.json" />
+
+  <!-- Apple Touch Icon for iOS home screen -->
+  <link rel="apple-touch-icon" href="/assets/logo.png" />
+
+  <!-- Meta tags for iOS standalone mode -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="SkyReach" />
+
   <style>
-    :root {
-      --bg: #0f172a;
-      --panel: #1e293b;
-      --muted: #94a3b8;
-      --accent: #2563eb;
-      --accent-hover: #1e40af;
-      --card-shadow: 0 0 15px rgba(37, 99, 235, 0.15);
-      --glass: rgba(255,255,255,0.03);
-    }
-    html,body { height:100%; }
     body {
       font-family: Arial, sans-serif;
-      margin: 0; padding: 0;
-      background: var(--bg);
+      background: #0f172a;
       color: white;
-      -webkit-font-smoothing:antialiased;
-      text-align: center;
+      margin: 0; padding: 0;
     }
     header {
-      background: var(--panel);
+      background: #1e293b;
       padding: 1rem;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
     }
-    header img { height:60px; vertical-align:middle; }
-    nav { display:flex; gap:1rem; align-items:center; }
+    header img {
+      height: 50px;
+    }
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1rem;
+    }
     nav a {
       color: #93c5fd;
-      text-decoration:none;
-      font-weight:bold;
+      text-decoration: none;
+      font-weight: bold;
     }
-    nav a:hover { text-decoration:underline; }
-    main { max-width:1000px; margin:2rem auto; padding:0 1rem; text-align:left; }
-    .page-title { margin:0 0 8px 0; font-size:22px; }
-    .lead { color:var(--muted); margin-bottom:16px; }
-
-    .grid { display:grid; grid-template-columns:320px 1fr; gap:20px; align-items:start; }
-    @media (max-width:880px){ .grid { grid-template-columns: 1fr; } }
-
-    .card {
-      background: var(--panel);
-      padding:18px;
-      border-radius:12px;
-      box-shadow: var(--card-shadow);
+    nav a:hover {
+      text-decoration: underline;
+    }
+    main {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      text-align: left;
+      line-height: 1.6;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 1rem;
     }
 
-    label { display:block; font-size:13px; color:var(--muted); margin-top:12px; }
-    input, select, textarea {
-      width:100%;
-      padding:10px;
-      margin-top:6px;
-      border-radius:6px;
-      border:none;
-      background:#334155;
-      color:white;
-      box-sizing:border-box;
+    label {
+      display: block;
+      font-size: 14px;
+      color: #94a3b8;
+      margin-top: 12px;
+      margin-bottom: 4px;
     }
-    input::placeholder{ color:var(--muted); }
-    .row { display:flex; gap:10px; }
-    .small { font-size:13px; color:var(--muted); }
-
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: none;
+      background: #334155;
+      color: white;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+    input::placeholder {
+      color: #94a3b8;
+    }
+    .row {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .row > div {
+      flex: 1;
+    }
     button {
-      width:100%;
-      padding:10px;
-      margin-top:12px;
-      border-radius:6px;
-      border:none;
-      background:var(--accent);
-      color:white;
-      font-weight:bold;
-      cursor:pointer;
+      background-color: #2563eb;
+      border: none;
+      padding: 0.7rem 1rem;
+      border-radius: 5px;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 16px;
+      margin-top: 16px;
+      width: 100%;
     }
-    button:hover { background:var(--accent-hover); }
-    .btn-ghost {
-      background:transparent;
-      border:1px solid rgba(255,255,255,0.06);
-      color:var(--muted);
-      font-weight:600;
+    button:hover {
+      background-color: #1e40af;
     }
-
+    button.btn-ghost {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #94a3b8;
+      font-weight: normal;
+      width: auto;
+      padding: 0.5rem 1rem;
+      margin-top: 8px;
+      margin-right: 10px;
+      display: inline-block;
+      cursor: pointer;
+    }
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+      justify-content: center;
+    }
+    #joinedAt {
+      color: #94a3b8;
+      font-size: 14px;
+      margin-top: 20px;
+      text-align: center;
+    }
     footer {
-      margin-top:32px;
-      font-size:0.9rem;
-      color:var(--muted);
-      padding-bottom:1rem;
-      text-align:center;
-      background:transparent;
+      text-align: center;
+      padding: 1rem 0;
+      background: #1e293b;
+      color: #ccc;
+      font-size: 0.9rem;
+      margin-top: 40px;
     }
-
-    table { width:100%; border-collapse:collapse; margin-top:8px; }
-    th,td { text-align:left; padding:8px; border-bottom:1px solid rgba(255,255,255,0.03); font-size:13px; }
-    .muted { color:var(--muted); }
-    .progressText { font-size:13px; color:var(--muted); margin-top:6px }
   </style>
 </head>
 <body>
   <header>
-    <div style="display:flex;align-items:center;gap:16px">
-      <img src="/assets/logo.png" alt="SkyReach Logo" />
-      <div style="display:none"><!-- reserved --></div>
-    </div>
-
+    <img src="/assets/logo.png" alt="SkyReach Logo" />
     <nav>
-      <a href="/index.html">Home</a>
-      <a href="/login.html">Login</a>
-      <a href="/signup.html">Sign Up</a>
-      <a href="/contact-us.html">Contact Us</a>
-      <button id="logoutTopBtn" style="background:var(--accent);border:none;padding:8px 10px;border-radius:6px;color:#fff;cursor:pointer">Log Out</button>
+      <a href="/ivao-list.html">IVAO List</a>
+      <a href="/vatsim-list.html">VATSIM List</a>
+      <a href="/live-flights.html">Live Flights</a>
+      <a href="/events.html">Events</a>
+      <a href="/events-roster.html">Event Roster</a>
+      <a href="/my-account.html">My Account</a>
+      <button id="logoutBtn">Log Out</button>
     </nav>
   </header>
 
   <main>
-    <h1 class="page-title">My Account</h1>
-    <p class="lead">View and edit your SkyReach profile.</p>
+    <h1>My Account</h1>
 
-    <div class="grid">
-      <!-- left column: removed avatar -->
+    <label for="displayName">Display Name</label>
+    <input id="displayName" placeholder="Name (what other pilots see)" />
 
-      <!-- right column -->
+    <label for="email">Email (can't change here)</label>
+    <input id="email" type="email" disabled />
+
+    <label for="hub">Hub</label>
+    <select id="hub">
+      <option value="EGCC">Manchester (EGCC)</option>
+      <option value="EGGW">Luton (EGGW)</option>
+      <option value="EGKK">Gatwick (EGKK)</option>
+      <option value="EGPH">Edinburgh (EGPH)</option>
+    </select>
+
+    <label for="rank">Rank</label>
+    <input id="rank" placeholder="Trainee / First Officer / Captain" />
+
+    <label for="newskyId">NewSky ID</label>
+    <input id="newskyId" placeholder="Your NewSky pilot ID" />
+
+    <div class="row">
       <div>
-        <div class="card">
-          <label>Display Name</label>
-          <input id="displayName" placeholder="Name (what other pilots see)" />
-
-          <label>Email (can't change here)</label>
-          <input id="email" type="email" disabled />
-
-          <label>Hub</label>
-          <select id="hub">
-            <option value="EGCC">Manchester (EGCC)</option>
-            <option value="EGGW">Luton (EGGW)</option>
-            <option value="EGKK">Gatwick (EGKK)</option>
-            <option value="EGPH">Edinburgh (EGPH)</option>
-          </select>
-
-          <label>Rank</label>
-          <input id="rank" placeholder="Trainee / First Officer / Captain" />
-
-          <label>NewSky ID</label>
-          <input id="newskyId" placeholder="Your NewSky pilot ID" />
-
-          <div class="row">
-            <div style="flex:1">
-              <label>Hours</label>
-              <input id="hours" type="number" min="0" step="1" />
-            </div>
-            <div style="flex:1">
-              <label>Flights</label>
-              <input id="flights" type="number" min="0" step="1" />
-            </div>
-          </div>
-
-          <label>Theme</label>
-          <select id="theme">
-            <option value="dark">Dark</option>
-            <option value="light">Light</option>
-          </select>
-
-          <label>Timezone</label>
-          <input id="timezone" placeholder="Europe/London" />
-
-          <label><input id="notifications" type="checkbox" style="vertical-align:middle" /> Enable notifications (email/discord)</label>
-
-          <div class="row" style="margin-top:12px">
-            <button id="saveBtn">Save changes</button>
-            <button id="resetPwdBtn" class="btn-ghost">Send password reset</button>
-          </div>
-
-          <div style="margin-top:10px">
-            <button id="logoutBtn" class="btn-ghost">Log out</button>
-          </div>
-        </div>
-
-        <div class="card" style="margin-top:16px">
-          <strong>Account info</strong>
-          <div class="small muted" style="margin-top:6px">Joined: <span id="joinedAt">—</span></div>
-          <div class="small muted">Last updated live from Firestore</div>
-        </div>
+        <label for="hours">Hours</label>
+        <input id="hours" type="number" min="0" step="1" />
       </div>
+      <div>
+        <label for="flights">Flights</label>
+        <input id="flights" type="number" min="0" step="1" />
+      </div>
+    </div>
+
+    <label for="theme">Theme</label>
+    <select id="theme">
+      <option value="dark">Dark</option>
+      <option value="light">Light</option>
+    </select>
+
+    <label for="timezone">Timezone</label>
+    <input id="timezone" placeholder="Europe/London" />
+
+    <label><input id="notifications" type="checkbox" style="vertical-align: middle;" /> Enable notifications (email/discord)</label>
+
+    <div class="btn-group">
+      <button id="saveBtn">Save changes</button>
+      <button id="resetPwdBtn" class="btn-ghost">Send password reset</button>
+    </div>
+
+    <div style="text-align:center;">
+      <div id="joinedAt">Joined: —</div>
     </div>
   </main>
 
@@ -195,7 +212,6 @@
     &copy; 2025 SkyReach Virtual Airline — All rights reserved.
   </footer>
 
-  <!-- ===== Firebase + App logic ===== -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
     import {
@@ -243,14 +259,12 @@
     const saveBtn = document.getElementById('saveBtn');
     const resetPwdBtn = document.getElementById('resetPwdBtn');
     const logoutBtn = document.getElementById('logoutBtn');
-    const logoutTopBtn = document.getElementById('logoutTopBtn');
 
     const joinedAtEl = document.getElementById('joinedAt');
 
     let currentUid = null;
     let userDocRef = null;
 
-    // Auth guard and load profile
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.href = "/login.html";
@@ -259,7 +273,6 @@
       currentUid = user.uid;
       userDocRef = doc(db, 'users', currentUid);
 
-      // Create default if missing
       const docSnap = await getDoc(userDocRef);
       if (!docSnap.exists()) {
         await setDoc(userDocRef, {
@@ -277,7 +290,6 @@
         }, { merge: true });
       }
 
-      // Subscribe to live updates
       onSnapshot(userDocRef, (s) => {
         const data = s.data();
         if (!data) return;
@@ -293,11 +305,10 @@
         timezoneEl.value = data.settings?.timezone || 'Europe/London';
         notificationsEl.checked = !!data.settings?.notifications;
 
-        joinedAtEl.textContent = data.joinedAt && data.joinedAt.toDate ? data.joinedAt.toDate().toLocaleDateString() : '—';
+        joinedAtEl.textContent = data.joinedAt && data.joinedAt.toDate ? `Joined: ${data.joinedAt.toDate().toLocaleDateString()}` : 'Joined: —';
       });
     });
 
-    // Save profile changes
     saveBtn.addEventListener('click', async () => {
       try {
         saveBtn.disabled = true;
@@ -334,7 +345,6 @@
       }
     });
 
-    // Reset password
     resetPwdBtn.addEventListener('click', async () => {
       const email = emailEl.value;
       if (!email) {
@@ -349,18 +359,14 @@
       }
     });
 
-    // Logout
-    async function doLogout() {
+    logoutBtn.addEventListener('click', async () => {
       try {
         await signOut(auth);
         window.location.href = '/login.html';
       } catch (err) {
         alert('Logout failed: ' + (err.message || err));
       }
-    }
-    logoutBtn.addEventListener('click', doLogout);
-    logoutTopBtn.addEventListener('click', doLogout);
-
+    });
   </script>
 </body>
 </html>
