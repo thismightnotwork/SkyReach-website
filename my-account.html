@@ -24,6 +24,7 @@
       color: white;
       margin: 0; padding: 0;
     }
+    /* Header styles from Members Area */
     header {
       background: #1e293b;
       padding: 1rem;
@@ -61,6 +62,8 @@
     button#logoutBtn:hover {
       background-color: #1e40af;
     }
+
+    /* Main content styles (keep your original My Account styles) */
     main {
       max-width: 900px;
       margin: 2rem auto;
@@ -151,6 +154,7 @@
   </style>
 </head>
 <body>
+  <!-- Header copied exactly from Members Area -->
   <header>
     <img src="../assets/logo.png" alt="SkyReach Logo" />
     <nav>
@@ -266,7 +270,8 @@
 
     const saveBtn = document.getElementById('saveBtn');
     const resetPwdBtn = document.getElementById('resetPwdBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
+    // Using the logout button as in Members Area
+    // const logoutBtn = document.getElementById('logoutBtn'); // No longer needed
 
     let currentUid = null;
     let userDocRef = null;
@@ -365,14 +370,12 @@
       }
     });
 
-    logoutBtn.addEventListener('click', async () => {
-      try {
-        await signOut(auth);
-        window.location.href = '../login.html';
-      } catch (err) {
-        alert('Logout failed: ' + (err.message || err));
-      }
-    });
+    // Logout button handler exactly like Members Area
+    document.getElementById('logoutBtn').onclick = () => {
+      signOut(auth).then(() => {
+        window.location.href = "../login.html";
+      });
+    };
   </script>
 
   <footer>
