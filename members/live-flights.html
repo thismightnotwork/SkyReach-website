@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>SkyReach - Live Flights Map</title>
-<link rel="icon" type="image/png" href="/assets/logo.png" />
+  <link rel="icon" type="image/png" href="/assets/logo.png" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <style>
     body, html { margin:0; padding:0; height:100%; background:#000; color:#eee; font-family:Arial; overflow:hidden; }
@@ -161,7 +161,6 @@
       <a href="ivao-list.html">IVAO List</a>
       <a href="vatsim-list.html">VATSIM List</a>
       <a href="live-flights.html">Live Flights</a>
-      
       <a href="events.html">Events</a>
       <a href="events-roster.html">Event Roster</a>
       <button id="logoutBtn">Log Out</button>
@@ -223,9 +222,9 @@
       });
     };
 
-    const map = L.map('map').setView([51.5,0],4);
+    const map = L.map('map').setView([51.5, 0], 4);
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      maxZoom:18, attribution:'&copy; OpenStreetMap contributors &copy; CARTO'
+      maxZoom: 18, attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
     }).addTo(map);
 
     const flightDetailsEl = document.getElementById('flightDetails'),
@@ -239,27 +238,27 @@
     const planeIconBase = 'https://raw.githubusercontent.com/thismightnotwork/Metar/main/pngkey.com-plane-icon-png-1382606.png';
     let markers = [];
 
-    function clearMarkers(){
+    function clearMarkers() {
       markers.forEach(m => map.removeLayer(m));
       markers = [];
     }
 
-    function formatHHMM(h){
-      if(!h || typeof h !== 'string' || h.length !== 4) return 'N/A';
-      return h.slice(0,2) + ':' + h.slice(2) + ' UTC';
+    function formatHHMM(h) {
+      if (!h || typeof h !== 'string' || h.length !== 4) return 'N/A';
+      return h.slice(0, 2) + ':' + h.slice(2) + ' UTC';
     }
 
-    function secondsToTime(s){
-      if(typeof s !== 'number' || isNaN(s)) return 'N/A';
+    function secondsToTime(s) {
+      if (typeof s !== 'number' || isNaN(s)) return 'N/A';
       const h = Math.floor(s / 3600);
       const m = Math.floor((s % 3600) / 60);
-      return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')} UTC`;
+      return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')} UTC`;
     }
 
-    function showFlightDetails(f){
-      let dep='???', arr='???', depTime='N/A', arrTime='N/A', aircraft='N/A';
+    function showFlightDetails(f) {
+      let dep = '???', arr = '???', depTime = 'N/A', arrTime = 'N/A', aircraft = 'N/A';
 
-      if(f.network === 'VATSIM'){
+      if (f.network === 'VATSIM') {
         dep = f.flight_plan?.departure || f.departure || '???';
         arr = f.flight_plan?.arrival || f.arrival || '???';
         depTime = formatHHMM(f.flight_plan?.deptime || f.deptime);
@@ -292,14 +291,14 @@
       sidebarRightEl.classList.add('visible');
     }
 
-    function hideSidebar(){
+    function hideSidebar() {
       sidebarRightEl.classList.remove('visible');
     }
 
-    function drawMarker(f){
+    function drawMarker(f) {
       const lat = f.lastTrack?.latitude || f.latitude;
       const lon = f.lastTrack?.longitude || f.longitude;
-      if(typeof lat !== 'number' || typeof lon !== 'number') return;
+      if (typeof lat !== 'number' || typeof lon !== 'number') return;
 
       const heading = f.lastTrack?.heading || f.heading || 0;
 
@@ -314,20 +313,20 @@
         html: `<img src="${planeIconBase}" style="transform:rotate(${heading - 45}deg);width:22px;height:22px;filter:${filter};" />`
       });
 
-      const m = L.marker([lat, lon], {icon}).addTo(map);
+      const m = L.marker([lat, lon], { icon }).addTo(map);
       m.on('click', () => {
         showFlightDetails(f);
       });
       markers.push(m);
     }
 
-    function renderFlights(fl){
+    function renderFlights(fl) {
       clearMarkers();
       flightsListEl.innerHTML = '';
 
       fl.forEach(f => {
         let dep = '???', arr = '???', est = 'N/A';
-        if(f.network === 'VATSIM'){
+        if (f.network === 'VATSIM') {
           dep = f.flight_plan?.departure || f.departure || '???';
           arr = f.flight_plan?.arrival || f.arrival || '???';
           est = formatHHMM(f.flight_plan?.deptime || f.deptime);
@@ -348,45 +347,45 @@
       });
     }
 
-    async function getIVAOFlights(){
-      try{
+    async function getIVAOFlights() {
+      try {
         const tokenRes = await fetch('https://ivao-token-server.onrender.com/token');
         const token = (await tokenRes.json()).token;
         const res = await fetch('https://api.ivao.aero/v2/tracker/whazzup', {
-          headers: {Authorization: 'Bearer ' + token, Accept: 'application/json'}
+          headers: { Authorization: 'Bearer ' + token, Accept: 'application/json' }
         });
         const js = await res.json();
-        return js.clients.pilots.map(f => ({...f, network: 'IVAO'}));
-      } catch(e){
+        return js.clients.pilots.map(f => ({ ...f, network: 'IVAO' }));
+      } catch (e) {
         console.error('IVAO fetch error:', e);
         return [];
       }
     }
 
-    async function getVATSIMFlights(){
-      try{
+    async function getVATSIMFlights() {
+      try {
         const res = await fetch('https://data.vatsim.net/v3/vatsim-data.json');
         const js = await res.json();
-        return js.pilots.map(f => ({...f, network: 'VATSIM'}));
-      } catch(e){
+        return js.pilots.map(f => ({ ...f, network: 'VATSIM' }));
+      } catch (e) {
         console.error('VATSIM fetch error:', e);
         return [];
       }
     }
 
-    async function updateFlights(){
+    async function updateFlights() {
       statusEl.textContent = 'Loading flights...';
       try {
         const [ivao, vatsim] = await Promise.all([getIVAOFlights(), getVATSIMFlights()]);
         let combined = [];
 
         const netFilter = networkFilter.value;
-        if(netFilter === 'IVAO') combined = ivao;
-        else if(netFilter === 'VATSIM') combined = vatsim;
+        if (netFilter === 'IVAO') combined = ivao;
+        else if (netFilter === 'VATSIM') combined = vatsim;
         else combined = ivao.concat(vatsim);
 
         const prefix = icaoInput.value.trim().toUpperCase();
-        if(prefix) {
+        if (prefix) {
           combined = combined.filter(f => {
             let dep = (f.flight_plan?.departure || f.flightPlan?.departureId || f.departure || '').toUpperCase();
             let arr = (f.flight_plan?.arrival || f.flightPlan?.arrivalId || f.arrival || '').toUpperCase();
@@ -394,7 +393,7 @@
           });
         }
 
-        if(combined.length === 0){
+        if (combined.length === 0) {
           statusEl.textContent = 'No flights found.';
           flightsListEl.innerHTML = '';
           clearMarkers();
@@ -404,7 +403,7 @@
 
         statusEl.textContent = `Showing ${combined.length} flights`;
         renderFlights(combined);
-      } catch(e){
+      } catch (e) {
         statusEl.textContent = 'Error loading flights.';
         console.error(e);
       }
@@ -413,13 +412,15 @@
     refreshBtn.onclick = updateFlights;
     networkFilter.onchange = updateFlights;
     icaoInput.oninput = () => {
-      if(icaoInput.value.length > 3) icaoInput.value = icaoInput.value.slice(0,3);
+      if (icaoInput.value.length > 3) icaoInput.value = icaoInput.value.slice(0, 3);
     };
 
+    // Initial load
     updateFlights();
   </script>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
   <footer>
     &copy; 2025 SkyReach Virtual Airline — All rights reserved.
   </footer>
