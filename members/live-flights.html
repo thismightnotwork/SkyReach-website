@@ -317,18 +317,20 @@
       mapEl.classList.add('full-width');
     }
 
-    function hideRightSidebar() {
-      sidebarRightEl.classList.remove('visible');
-      sidebarLeftEl.classList.remove('hidden');
-      mapEl.classList.remove('full-width');
-      flightDetailsEl.innerHTML = 'Click an aircraft to view details.';
-    }
+    // Initial state: left sidebar open, right sidebar closed
+    sidebarLeftEl.classList.remove('hidden');
+    sidebarRightEl.classList.remove('visible');
+    mapEl.classList.remove('full-width');
+    flightDetailsEl.innerHTML = 'Click an aircraft to view details.';
 
-    // New: hide both sidebars and expand map
     function hideBothSidebars() {
       sidebarRightEl.classList.remove('visible');
       sidebarLeftEl.classList.add('hidden');
       mapEl.classList.add('full-width');
+      flightDetailsEl.innerHTML = 'Click an aircraft to view details.';
+    }
+
+    function clearFlightDetails() {
       flightDetailsEl.innerHTML = 'Click an aircraft to view details.';
     }
 
@@ -352,7 +354,6 @@
 
       const m = L.marker([lat, lon], { icon }).addTo(map);
       m.on('click', (e) => {
-        // Stop event propagation so map click doesn’t fire
         e.originalEvent.stopPropagation();
         showFlightDetails(f);
       });
@@ -436,7 +437,11 @@
           statusEl.textContent = 'No flights found.';
           flightsListEl.innerHTML = '';
           clearMarkers();
-          hideBothSidebars();
+          // Both sidebars closed → open left sidebar
+          sidebarLeftEl.classList.remove('hidden');
+          sidebarRightEl.classList.remove('visible');
+          mapEl.classList.remove('full-width');
+          clearFlightDetails();
           return;
         }
 
@@ -454,9 +459,24 @@
       if (icaoInput.value.length > 3) icaoInput.value = icaoInput.value.slice(0, 3);
     };
 
-    // On map click (not on marker), hide both sidebars and expand map
+    // Map click behavior as requested:
     map.on('click', () => {
-      hideBothSidebars();
+      const leftHidden = sidebarLeftEl.classList.contains('hidden');
+      const rightVisible = sidebarRightEl.classList.contains('visible');
+
+      if (!leftHidden || rightVisible) {
+        // If any sidebar is open, close both
+        sidebarLeftEl.classList.add('hidden');
+        sidebarRightEl.classList.remove('visible');
+        mapEl.classList.add('full-width');
+        clearFlightDetails();
+      } else {
+        // Both sidebars closed → open left sidebar
+        sidebarLeftEl.classList.remove('hidden');
+        sidebarRightEl.classList.remove('visible');
+        mapEl.classList.remove('full-width');
+        clearFlightDetails();
+      }
     });
 
     // Initial load
