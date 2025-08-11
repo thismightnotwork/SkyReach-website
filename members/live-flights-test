@@ -60,6 +60,12 @@
       overflow-y:auto;
       z-index:1000;
       box-sizing: border-box;
+      /* Start hidden offscreen for slide effect */
+      transform: translateX(-320px);
+      transition: transform 0.3s ease;
+    }
+    #sidebar-left.visible {
+      transform: translateX(0);
     }
     #sidebar-right {
       position:absolute;
@@ -71,7 +77,7 @@
       border-left:1px solid #333;
       padding:10px;
       overflow-y:auto;
-      transition:right .3s ease;
+      transition:right 0.3s ease;
       z-index:1001;
       box-sizing: border-box;
     }
@@ -230,6 +236,7 @@
 
     const flightDetailsEl = document.getElementById('flightDetails'),
           sidebarRightEl = document.getElementById('sidebar-right'),
+          sidebarLeftEl = document.getElementById('sidebar-left'),
           statusEl = document.getElementById('status'),
           flightsListEl = document.getElementById('flightsList'),
           refreshBtn = document.getElementById('refreshBtn'),
@@ -238,6 +245,15 @@
 
     const planeIconBase = 'https://raw.githubusercontent.com/thismightnotwork/Metar/main/pngkey.com-plane-icon-png-1382606.png';
     let markers = [];
+
+    // Track state of sidebar visibility for map clicks:
+    // States:
+    // 0 = both sidebars hidden (initial)
+    // 1 = both sidebars visible
+    // 2 = only left sidebar visible
+    // We'll toggle between state 1 and 2 on map clicks
+    // Clicking aircraft forces right sidebar visible, left sidebar hidden
+    let mapClickState = 0;
 
     function clearMarkers() {
       markers.forEach(m => map.removeLayer(m));
@@ -289,10 +305,29 @@
         Departure Time: ${depTime}<br/>
         Arrival Time: ${arrTime}
       `;
+      // Show right sidebar
+      sidebarRightEl.classList.add('visible');
+      // Hide left sidebar when aircraft clicked
+      sidebarLeftEl.classList.remove('visible');
+      mapClickState = 0; // Reset map click state
+    }
+
+    function hideSidebarRight() {
+      sidebarRightEl.classList.remove('visible');
+    }
+
+    function showBothSidebars() {
+      sidebarLeftEl.classList.add('visible');
       sidebarRightEl.classList.add('visible');
     }
 
-    function hideSidebar() {
+    function showLeftSidebarOnly() {
+      sidebarLeftEl.classList.add('visible');
+      sidebarRightEl.classList.remove('visible');
+    }
+
+    function hideBothSidebars() {
+      sidebarLeftEl.classList.remove('visible');
       sidebarRightEl.classList.remove('visible');
     }
 
@@ -315,7 +350,9 @@
       });
 
       const m = L.marker([lat, lon], { icon }).addTo(map);
-      m.on('click', () => {
+      m.on('click', (e) => {
+        // Prevent map click event firing after marker click
+        e.originalEvent._fromMarker = true;
         showFlightDetails(f);
       });
       markers.push(m);
@@ -398,12 +435,18 @@
           statusEl.textContent = 'No flights found.';
           flightsListEl.innerHTML = '';
           clearMarkers();
-          hideSidebar();
+          hideSidebarRight();
+          sidebarLeftEl.classList.remove('visible');
+          mapClickState = 0;
           return;
         }
 
         statusEl.textContent = `Showing ${combined.length} flights`;
         renderFlights(combined);
+        // Show left sidebar by default on flight list update, hide right sidebar
+        sidebarLeftEl.classList.add('visible');
+        sidebarRightEl.classList.remove('visible');
+        mapClickState = 1; // start with both sidebars visible scenario
       } catch (e) {
         statusEl.textContent = 'Error loading flights.';
         console.error(e);
@@ -415,6 +458,36 @@
     icaoInput.oninput = () => {
       if (icaoInput.value.length > 3) icaoInput.value = icaoInput.value.slice(0, 3);
     };
+
+    // Handle map clicks to toggle sidebar states
+    map.on('click', function(e) {
+      // Ignore clicks originated from marker clicks
+      if (e.originalEvent._fromMarker) return;
+
+      // If right sidebar visible (due to aircraft click), hide it and show both sidebars
+      if (sidebarRightEl.classList.contains('visible') && !sidebarLeftEl.classList.contains('visible')) {
+        // Aircraft sidebar visible, so hide right sidebar and show both sidebars
+        sidebarRightEl.classList.remove('visible');
+        sidebarLeftEl.classList.add('visible');
+        mapClickState = 1; // both sidebars visible
+        return;
+      }
+
+      // Toggle between showing both sidebars and left sidebar only on map clicks
+      if (mapClickState === 1) {
+        // Currently both sidebars visible -> show left sidebar only
+        showLeftSidebarOnly();
+        mapClickState = 2;
+      } else if (mapClickState === 2) {
+        // Currently left sidebar only -> show both sidebars
+        showBothSidebars();
+        mapClickState = 1;
+      } else {
+        // Initial or other state -> show both sidebars
+        showBothSidebars();
+        mapClickState = 1;
+      }
+    });
 
     // Initial load
     updateFlights();
