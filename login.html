@@ -18,19 +18,14 @@
       background: #1e293b;
       padding: 1rem;
     }
-    header img {
-      height: 60px;
-      vertical-align: middle;
-    }
+    header img { height: 60px; vertical-align: middle; }
     nav a {
       color: #93c5fd;
       margin: 0 1rem;
       text-decoration: none;
       font-weight: bold;
     }
-    nav a:hover {
-      text-decoration: underline;
-    }
+    nav a:hover { text-decoration: underline; }
     main {
       max-width: 900px;
       margin: 2rem auto;
@@ -69,9 +64,7 @@
       background: #334155;
       color: white;
     }
-    input::placeholder {
-      color: #94a3b8;
-    }
+    input::placeholder { color: #94a3b8; }
     button {
       background-color: #2563eb;
       color: white;
@@ -79,8 +72,13 @@
       font-weight: bold;
       border: none;
     }
-    button:hover {
-      background-color: #1e40af;
+    button:hover { background-color: #1e40af; }
+    button.btn-ghost {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #94a3b8;
+      font-weight: normal;
+      margin-top: 8px;
     }
     #message {
       margin-top: 1rem;
@@ -109,6 +107,7 @@
       <input id="email" type="email" placeholder="Email" autocomplete="username" />
       <input id="password" type="password" placeholder="Password" autocomplete="current-password" />
       <button id="login-btn">Log In</button>
+      <button id="forgot-btn" class="btn-ghost" onclick="window.location.href='reset-password.html'">Forgot Password?</button>
       <div id="message"></div>
     </div>
   </main>
@@ -150,36 +149,20 @@
       signInWithEmailAndPassword(auth, email, password)
         .then(async (userCredential) => {
           const user = userCredential.user;
-          const idTokenResult = await getIdTokenResult(user, /* forceRefresh */ true);
-
-          // Check for admin claim (you need to set this custom claim in Firebase backend)
+          const idTokenResult = await getIdTokenResult(user);
           const isAdmin = idTokenResult.claims.admin === true;
-
           localStorage.setItem('isAdmin', isAdmin ? 'true' : 'false');
-
-          if (isAdmin) {
-            window.location.href = '/members/index.html';
-          } else {
-            window.location.href = '/members/index.html';
-          }
+          window.location.href = '/members/index.html';
         })
-        .catch(e => {
-          message.textContent = e.message;
-        });
+        .catch(e => { message.textContent = e.message; });
     };
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // User is signed in, check admin claim
         const idTokenResult = await getIdTokenResult(user);
         const isAdmin = idTokenResult.claims.admin === true;
         localStorage.setItem('isAdmin', isAdmin ? 'true' : 'false');
-
-        if (isAdmin) {
-          window.location.href = '/admin/event-selection.html';
-        } else {
-          window.location.href = '/members/index.html';
-        }
+        window.location.href = '/members/index.html';
       }
     });
   </script>
