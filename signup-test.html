@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>SkyReach - Sign Up</title>
-  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <link rel="icon" type="image/png" href="/assets/logo.png" />
   <style>
     body { font-family: Arial; margin:0;padding:0; background:#0f172a; color:white; text-align:center; }
     header { background:#1e293b; padding:1rem; }
@@ -25,7 +25,7 @@
 </head>
 <body>
 <header>
-  <img src="assets/logo.png" alt="SkyReach Logo" />
+  <img src="/assets/logo.png" alt="SkyReach Logo" />
   <nav>
     <a href="index.html">Home</a>
     <a href="login.html">Login</a>
@@ -111,7 +111,7 @@ signupBtn.onclick = async () => {
 
   try {
     // Optional: Validate token server-side
-    const res = await fetch('https://your-backend.onrender.com/verify-turnstile', {
+    const res = await fetch('https://turnstile-0jfk.onrender.com', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token })
