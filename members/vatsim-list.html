@@ -20,9 +20,7 @@
       justify-content: space-between;
       flex-wrap: wrap;
     }
-    header img {
-      height: 50px;
-    }
+    header img { height: 50px; }
     nav {
       display: flex;
       flex-wrap: wrap;
@@ -34,27 +32,12 @@
       text-decoration: none;
       font-weight: bold;
     }
-    nav a:hover {
-      text-decoration: underline;
-    }
-    button#logoutBtn {
-      background-color: #2563eb;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 5px;
-      color: white;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    button#logoutBtn:hover {
-      background-color: #1e40af;
-    }
+    nav a:hover { text-decoration: underline; }
     main {
       max-width: 900px;
       margin: 2rem auto;
       padding: 0 1rem;
     }
-    /* Flight Board Styles */
     h1 {
       text-align: center;
       margin-top: 0;
@@ -84,9 +67,7 @@
       background: #444;
       color: white;
     }
-    #updateBtn:hover {
-      background: #666;
-    }
+    #updateBtn:hover { background: #666; }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -98,11 +79,7 @@
       border: 1px solid rgba(255,255,255,0.3);
       text-align: center;
     }
-    th {
-      background-color: rgba(255, 255, 255, 0.1);
-    }
-
-    /* Footer styling */
+    th { background-color: rgba(255, 255, 255, 0.1); }
     footer {
       text-align: center;
       padding: 1rem 0;
@@ -114,189 +91,136 @@
   </style>
 </head>
 <body>
-  <header>
-    <img src="../assets/logo.png" alt="SkyReach Logo" />
-    <nav>
-      <a href="ivao-list.html">IVAO List</a>
-      <a href="vatsim-list.html">VATSIM List</a>
-      <a href="live-flights.html">Live Flights</a>
-      <a href="events.html">Events</a>
-      <a href="events-roster.html">Event Roster</a>
-      <a href="/my-account.html">My Account</a>
-      <button id="logoutBtn">Log Out</button>
-    </nav>
-  </header>
+<header>
+  <img src="../assets/logo.png" alt="SkyReach Logo" />
+  <nav>
+    <a href="ivao-list.html">IVAO List</a>
+    <a href="vatsim-list.html">VATSIM List</a>
+    <a href="live-flights.html">Live Flights</a>
+    <a href="events.html">Events</a>
+    <a href="events-roster.html">Event Roster</a>
+    <a href="/gallery.html">Gallery</a>
+    <a href="/my-account.html">My Account</a>
+  </nav>
+</header>
 
-  <main>
-    <section id="content">
-      <h1><span id="airportTitle">EGLL</span> – <span id="mode">Arrivals</span></h1>
-      <div id="airportInputContainer">
-        <input type="text" id="airportInput" placeholder="Enter ICAO" maxlength="4" />
-        <button id="updateBtn">Update</button>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Callsign</th>
-            <th>Arrival Airport</th>
-            <th>Est. Time (UTC)</th>
-            <th>Aircraft Type</th>
-          </tr>
-        </thead>
-        <tbody id="flights">
-          <tr><td colspan="4">Loading...</td></tr>
-        </tbody>
-      </table>
-    </section>
-  </main>
+<main>
+  <section id="content">
+    <h1><span id="airportTitle">EGLL</span> – <span id="mode">Arrivals</span></h1>
+    <div id="airportInputContainer">
+      <input type="text" id="airportInput" placeholder="Enter ICAO" maxlength="4" />
+      <button id="updateBtn">Update</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Callsign</th>
+          <th>Arrival Airport</th>
+          <th>Est. Time (UTC)</th>
+          <th>Aircraft Type</th>
+        </tr>
+      </thead>
+      <tbody id="flights">
+        <tr><td colspan="4">Loading...</td></tr>
+      </tbody>
+    </table>
+  </section>
+</main>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyA92I8ATCslzGoveL_LFKproCkI0clq5XE",
-      authDomain: "skyreach-login.firebaseapp.com",
-      projectId: "skyreach-login",
-      storageBucket: "skyreach-login.firebasestorage.app",
-      messagingSenderId: "531909303327",
-      appId: "1:531909303327:web:58f4b25a6b8023ef87c92a",
-      measurementId: "G-3XKSQ6W4PY"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyA92I8ATCslzGoveL_LFKproCkI0clq5XE",
+    authDomain: "skyreach-login.firebaseapp.com",
+    projectId: "skyreach-login",
+    storageBucket: "skyreach-login.firebasestorage.app",
+    messagingSenderId: "531909303327",
+    appId: "1:531909303327:web:58f4b25a6b8023ef87c92a",
+    measurementId: "G-3XKSQ6W4PY"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
 
-    onAuthStateChanged(auth, user => {
-      if (!user) {
-        window.location.href = "../login.html";
-      }
-    });
+  onAuthStateChanged(auth, user => { if (!user) window.location.href = "../login.html"; });
 
-    document.getElementById('logoutBtn').onclick = () => {
-      signOut(auth).then(() => {
-        window.location.href = "../login.html";
+  let airport = 'EGLL';
+  let mode = 'arrivals';
+
+  const airportTitle = document.getElementById('airportTitle');
+  const airportInput = document.getElementById('airportInput');
+  const updateBtn = document.getElementById('updateBtn');
+
+  function formatTime(date) {
+    if (!(date instanceof Date)) return 'N/A';
+    return date.getUTCHours().toString().padStart(2,'0') + ':' + date.getUTCMinutes().toString().padStart(2,'0');
+  }
+
+  function getEstimatedTime(fp){
+    if(!fp || !fp.deptime) return 0;
+    const now = new Date();
+    const depHour = parseInt(fp.deptime.slice(0,2),10);
+    const depMin = parseInt(fp.deptime.slice(2),10);
+    let depDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), depHour, depMin));
+    if(depDate.getTime()<now.getTime()-3600000) depDate.setUTCDate(depDate.getUTCDate()+1);
+    let eteMs=0;
+    if(fp.enroute_time && fp.enroute_time.length===4){
+      const h=parseInt(fp.enroute_time.slice(0,2),10);
+      const m=parseInt(fp.enroute_time.slice(2,4),10);
+      eteMs=(h*60+m)*60000;
+    }
+    return mode==='departures'?depDate.getTime():depDate.getTime()+eteMs;
+  }
+
+  async function fetchFlights(){
+    try{
+      const res = await fetch('https://data.vatsim.net/v3/vatsim-data.json');
+      const data = await res.json();
+      const pilots = data.pilots||[];
+      const filtered = pilots.filter(p=>{
+        const fp=p.flight_plan;
+        if(!fp) return false;
+        return mode==='arrivals'?fp.arrival?.toUpperCase()===airport:fp.departure?.toUpperCase()===airport;
       });
-    };
+      filtered.sort((a,b)=>getEstimatedTime(a.flight_plan)-getEstimatedTime(b.flight_plan));
+      const rows = filtered.slice(0,20).map(p=>{
+        const fp=p.flight_plan;
+        return `<tr>
+          <td>${p.callsign||'N/A'}</td>
+          <td>${fp.arrival||'N/A'}</td>
+          <td>${formatTime(new Date(getEstimatedTime(fp)))}</td>
+          <td>${fp.aircraft_short||fp.aircraft||'N/A'}</td>
+        </tr>`;
+      }).join('');
+      document.getElementById('flights').innerHTML = rows || '<tr><td colspan="4">No flights</td></tr>';
+    } catch(e){ console.error(e); document.getElementById('flights').innerHTML='<tr><td colspan="4">Error loading data</td></tr>'; }
+  }
 
+  function update(){
+    airportTitle.textContent=airport;
+    document.getElementById('mode').textContent=mode.charAt(0).toUpperCase()+mode.slice(1);
+    fetchFlights();
+  }
 
-    // VATSIM Flight Board Script below
+  function toggleMode(){ mode=mode==='arrivals'?'departures':'arrivals'; update(); }
 
-    let airport = 'EGLL';
-    let mode = 'arrivals'; // or 'departures'
+  function setAirport(input){
+    if(!input||input.length!==4){ alert('Enter a valid 4-letter ICAO code'); return; }
+    airport=input.toUpperCase(); update();
+  }
 
-    const airportTitle = document.getElementById('airportTitle');
-    const airportInput = document.getElementById('airportInput');
-    const updateBtn = document.getElementById('updateBtn');
+  updateBtn.addEventListener('click',()=>setAirport(airportInput.value.trim()));
+  airportInput.addEventListener('keypress',e=>{if(e.key==='Enter')setAirport(airportInput.value.trim());});
 
-    function formatTime(date) {
-      if (!(date instanceof Date)) return 'N/A';
-      return date.getUTCHours().toString().padStart(2, '0') + ':' + date.getUTCMinutes().toString().padStart(2, '0');
-    }
+  update();
+  setInterval(toggleMode,10000);
+  setInterval(update,30000);
+</script>
 
-    function getEstimatedTime(fp) {
-      if (!fp || !fp.deptime) return 0;
-
-      const now = new Date();
-      const depHour = parseInt(fp.deptime.slice(0, 2), 10);
-      const depMin = parseInt(fp.deptime.slice(2), 10);
-      let depDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), depHour, depMin));
-
-      // Adjust for past times (e.g. tomorrow's departures)
-      if (depDate.getTime() < now.getTime() - 3600000) {
-        depDate.setUTCDate(depDate.getUTCDate() + 1);
-      }
-
-      if (mode === 'departures') return depDate.getTime();
-
-      // Handle enroute_time: "HHMM"
-      let eteMs = 0;
-      if (fp.enroute_time && fp.enroute_time.length === 4) {
-        const h = parseInt(fp.enroute_time.slice(0, 2), 10);
-        const m = parseInt(fp.enroute_time.slice(2, 4), 10);
-        eteMs = (h * 60 + m) * 60000;
-      }
-
-      return depDate.getTime() + eteMs;
-    }
-
-    async function fetchFlights() {
-      try {
-        const res = await fetch('https://data.vatsim.net/v3/vatsim-data.json');
-        const data = await res.json();
-        const pilots = data.pilots || [];
-
-        const filtered = pilots.filter(pilot => {
-          const fp = pilot.flight_plan;
-          if (!fp) return false;
-          return mode === 'arrivals'
-            ? fp.arrival?.toUpperCase() === airport
-            : fp.departure?.toUpperCase() === airport;
-        });
-
-        filtered.sort((a, b) => getEstimatedTime(a.flight_plan) - getEstimatedTime(b.flight_plan));
-
-        const rows = filtered.slice(0, 20).map(p => {
-          const fp = p.flight_plan;
-          const estTime = formatTime(new Date(getEstimatedTime(fp)));
-          return `
-            <tr>
-              <td>${p.callsign || 'N/A'}</td>
-              <td>${fp.arrival || 'N/A'}</td>
-              <td>${estTime}</td>
-              <td>${fp.aircraft_short || fp.aircraft || 'N/A'}</td>
-            </tr>`;
-        }).join('');
-
-        document.getElementById('flights').innerHTML = rows || '<tr><td colspan="4">No flights</td></tr>';
-      } catch (err) {
-        console.error('Fetch error:', err);
-        document.getElementById('flights').innerHTML = '<tr><td colspan="4">Error loading data</td></tr>';
-      }
-    }
-
-    function update() {
-      airportTitle.textContent = airport;
-      document.getElementById('mode').textContent = mode.charAt(0).toUpperCase() + mode.slice(1);
-      fetchFlights();
-    }
-
-    function toggleMode() {
-      mode = mode === 'arrivals' ? 'departures' : 'arrivals';
-      update();
-    }
-
-    function setAirport(input) {
-      if (!input || input.length !== 4) {
-        alert('Enter a valid 4-letter ICAO code');
-        return;
-      }
-      airport = input.toUpperCase();
-      update();
-    }
-
-    updateBtn.addEventListener('click', () => {
-      setAirport(airportInput.value.trim());
-    });
-
-    airportInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        setAirport(airportInput.value.trim());
-      }
-    });
-
-    // Load on start
-    update();
-
-    // Toggle mode every 10 seconds
-    setInterval(toggleMode, 10000);
-
-    // Refresh current mode every 30 seconds
-    setInterval(update, 30000);
-  </script>
-
-  <footer>
-    &copy; 2025 SkyReach Virtual Airline — All rights reserved.
-  </footer>
+<footer>
+  &copy; 2025 SkyReach Virtual Airline — All rights reserved.
+</footer>
 </body>
 </html>
