@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SkyReach Photo Gallery</title>
+<link rel="icon" type="image/png" href="/assets/logo.png" />
+<style>
+  body { font-family: Arial, sans-serif; background: #0f172a; color: white; margin:0; padding:0; }
+  header { background: #1e293b; padding: 1rem; text-align: center; }
+  main { max-width: 900px; margin: 2rem auto; padding: 0 1rem; text-align: center; }
+  h1 { margin-bottom: 1rem; }
+  #gallery { display: grid; grid-template-columns: repeat(auto-fill,minmax(150px,1fr)); gap: 1rem; margin-top: 2rem; }
+  #gallery img { width: 100%; height: auto; border-radius: 5px; }
+  button { background-color: #2563eb; border: none; padding: 0.5rem 1rem; border-radius: 5px; color: white; cursor: pointer; margin-top: 1rem; }
+  button:hover { background-color: #1e40af; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>SkyReach Photo Gallery</h1>
+</header>
+
+<main>
+  <input type="file" id="fileInput" accept="image/*" />
+  <button id="uploadBtn">Upload Image</button>
+  <div id="gallery"></div>
+</main>
+
+<script>
+const cloudName = "djo5w4vc9"; // replace with your Cloudinary cloud name
+const uploadPreset = "unsigned_upload"; // your unsigned preset
+
+const fileInput = document.getElementById("fileInput");
+const uploadBtn = document.getElementById("uploadBtn");
+const gallery = document.getElementById("gallery");
+
+uploadBtn.addEventListener("click", async () => {
+  const file = fileInput.files[0];
+  if (!file) return alert("Select an image first!");
+
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", uploadPreset);
+
+  try {
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/upload`, {
+      method: "POST",
+      body: formData
+    });
+    const data = await res.json();
+    console.log(data);
+
+    // Add image to gallery
+    const img = document.createElement("img");
+    img.src = data.secure_url;
+    gallery.appendChild(img);
+    fileInput.value = ""; // clear file input
+  } catch (err) {
+    console.error(err);
+    alert("Upload failed");
+  }
+});
+</script>
+
+</body>
+</html>
