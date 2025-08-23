@@ -1,55 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>SkyReach Gallery</title>
-<link rel="icon" type="image/png" href="/assets/logo.png" />
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    background: #0f172a;
-    color: white;
-    margin: 0; padding: 0;
-  }
-  header {
-    background: #1e293b;
-    padding: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  header h1 {
-    margin: 0;
-  }
-  main {
-    max-width: 900px;
-    margin: 2rem auto;
-    padding: 0 1rem;
-    text-align: center;
-  }
-  #gallery {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 1rem;
-    margin-top: 2rem;
-  }
-  #gallery img {
-    width: 100%;
-    height: auto;
-    border-radius: 5px;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SkyReach - Gallery</title>
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+
+  <!-- Manifest for PWA -->
+  <link rel="manifest" href="manifest.json" />
+
+  <!-- Apple Touch Icon for iOS home screen -->
+  <link rel="apple-touch-icon" href="assets/logo.png" />
+
+  <!-- Meta tags for iOS standalone mode -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="SkyReach" />
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0; padding: 0;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+    }
+    header {
+      background: #1e293b;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    header img {
+      height: 60px;
+      vertical-align: middle;
+    }
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1rem;
+    }
+    nav a {
+      color: #93c5fd;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+    main {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    #gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill,minmax(150px,1fr));
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    #gallery img {
+      width: 100%;
+      height: auto;
+      border-radius: 5px;
+    }
+    footer {
+      margin-top: 3rem;
+      font-size: 0.9rem;
+      color: #94a3b8;
+      padding-bottom: 1rem;
+    }
+    button.login-btn {
+      margin-top: 2rem;
+      padding: 0.7rem 1.5rem;
+      font-size: 1.1rem;
+      background-color: #2563eb;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      color: white;
+    }
+    button.login-btn:hover {
+      background-color: #1e40af;
+    }
+  </style>
 </head>
 <body>
 
 <header>
-  <h1>SkyReach Members Gallery</h1>
+  <img src="assets/logo.png" alt="SkyReach Logo" />
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="login.html">Login</a>
+    <a href="signup.html">Sign Up</a>
+    <a href="contact-us.html">Contact Us</a>
+  </nav>
 </header>
 
 <main>
+  <h1>SkyReach Members Gallery</h1>
+  <p>Browse images uploaded to SkyReach.</p>
+
   <div id="gallery"></div>
 </main>
+
+<footer>
+  &copy; 2025 SkyReach Virtual Airline — All rights reserved.
+</footer>
 
 <script>
 const githubUser = "thismightnotwork";
@@ -61,7 +121,6 @@ const gallery = document.getElementById("gallery");
 
 async function loadImages() {
   try {
-    // GitHub API to list files in folder
     const res = await fetch(`https://api.github.com/repos/${githubUser}/${repo}/contents/${folder}?ref=${branch}`);
     const files = await res.json();
 
@@ -77,7 +136,6 @@ async function loadImages() {
   }
 }
 
-// Load gallery on page load
 loadImages();
 </script>
 
