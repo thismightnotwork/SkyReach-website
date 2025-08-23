@@ -152,7 +152,7 @@
           const idTokenResult = await getIdTokenResult(user);
           const isAdmin = idTokenResult.claims.admin === true;
           localStorage.setItem('isAdmin', isAdmin ? 'true' : 'false');
-          window.location.href = '/members/index.html';
+          window.location.href = '/gallery.html';
         })
         .catch(e => { message.textContent = e.message; });
     };
@@ -162,7 +162,7 @@
         const idTokenResult = await getIdTokenResult(user);
         const isAdmin = idTokenResult.claims.admin === true;
         localStorage.setItem('isAdmin', isAdmin ? 'true' : 'false');
-        window.location.href = '/members/index.html';
+        window.location.href = '/gallery.html';
       }
     });
   </script>
