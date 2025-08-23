@@ -27,9 +27,7 @@
       justify-content: space-between;
       flex-wrap: wrap;
     }
-    header img {
-      height: 50px;
-    }
+    header img { height: 50px; }
     nav {
       display: flex;
       flex-wrap: wrap;
@@ -41,9 +39,7 @@
       text-decoration: none;
       font-weight: bold;
     }
-    nav a:hover {
-      text-decoration: underline;
-    }
+    nav a:hover { text-decoration: underline; }
     main {
       flex: 1;
       max-width: 900px;
@@ -51,18 +47,6 @@
       padding: 0 1rem;
       width: 100%;
       box-sizing: border-box;
-    }
-    button#logoutBtn {
-      background-color: #2563eb;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 5px;
-      color: white;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    button#logoutBtn:hover {
-      background-color: #1e40af;
     }
     h1#eventTitle {
       text-align: center;
@@ -76,17 +60,16 @@
       padding-bottom: 6px;
       color: #ccc;
     }
-    /* Container divs full width */
     #atcContainer, #pilotContainer {
       width: 100%;
-      overflow-x: auto; /* horizontal scroll if table too wide */
+      overflow-x: auto;
     }
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 10px;
       margin-bottom: 30px;
-      min-width: 600px; /* prevent too narrow tables */
+      min-width: 600px;
       table-layout: auto;
     }
     th, td {
@@ -96,9 +79,7 @@
       color: white;
       white-space: nowrap;
     }
-    th {
-      background: #222;
-    }
+    th { background: #222; }
     footer {
       text-align: center;
       font-size: 0.9rem;
@@ -111,104 +92,86 @@
   </style>
 </head>
 <body>
-  <header>
-    <img src="../assets/logo.png" alt="SkyReach Logo" />
-    <nav>
-      <a href="ivao-list.html">IVAO List</a>
-      <a href="vatsim-list.html">VATSIM List</a>
-      <a href="live-flights.html">Live Flights</a>
-      <a href="events.html">Events</a>
-      <a href="events-roster.html">Event Roster</a>
-      <a href="/my-account.html">My Account</a>
-      <button id="logoutBtn">Log Out</button>
-    </nav>
-  </header>
+<header>
+  <img src="../assets/logo.png" alt="SkyReach Logo" />
+  <nav>
+    <a href="ivao-list.html">IVAO List</a>
+    <a href="vatsim-list.html">VATSIM List</a>
+    <a href="live-flights.html">Live Flights</a>
+    <a href="events.html">Events</a>
+    <a href="events-roster.html">Event Roster</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="/my-account.html">My Account</a>
+  </nav>
+</header>
 
-  <main>
-    <section id="content">
-      <h1 id="eventTitle">Loading event...</h1>
-      <div id="atcContainer"></div>
-      <h2>Pilots</h2>
-      <div id="pilotContainer"></div>
-    </section>
-  </main>
+<main>
+  <section id="content">
+    <h1 id="eventTitle">Loading event...</h1>
+    <div id="atcContainer"></div>
+    <h2>Pilots</h2>
+    <div id="pilotContainer"></div>
+  </section>
+</main>
 
-  <footer>
-    &copy; 2025 SkyReach Virtual Airline — All rights reserved.
-  </footer>
+<footer>
+  &copy; 2025 SkyReach Virtual Airline — All rights reserved.
+</footer>
 
-  <script>
-    const sheetId = "1V2Yy8J9Qlr7zHFUcrXlR-AGifubo-hZpNW6VsL5M-6s";
-    const formResponses2Sheet = "Form Responses 2";
+<script>
+  const sheetId = "1V2Yy8J9Qlr7zHFUcrXlR-AGifubo-hZpNW6VsL5M-6s";
+  const formResponses2Sheet = "Form Responses 2";
 
-    async function fetchSheetData(sheetName) {
-      const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
-      const res = await fetch(url);
-      const text = await res.text();
-      const json = JSON.parse(text.substr(47).slice(0, -2));
-      return json.table.rows.map(row => row.c.map(cell => cell ? cell.v : ""));
-    }
+  async function fetchSheetData(sheetName) {
+    const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+    const res = await fetch(url);
+    const text = await res.text();
+    const json = JSON.parse(text.substr(47).slice(0, -2));
+    return json.table.rows.map(row => row.c.map(cell => cell ? cell.v : ""));
+  }
 
-    function groupBy(array, keyFn) {
-      return array.reduce((acc, item) => {
-        const key = keyFn(item);
-        (acc[key] = acc[key] || []).push(item);
-        return acc;
-      }, {});
-    }
+  function groupBy(array, keyFn) {
+    return array.reduce((acc, item) => {
+      const key = keyFn(item);
+      (acc[key] = acc[key] || []).push(item);
+      return acc;
+    }, {});
+  }
 
-    async function loadAndDisplay() {
-      try {
-        const bids = await fetchSheetData(formResponses2Sheet);
-        if (bids.length === 0) {
-          document.getElementById("eventTitle").textContent = "No bids found.";
-          return;
-        }
-        bids.sort((a, b) => new Date(a[0]) - new Date(b[0]));
-        const eventName = bids[0][1];
-        document.getElementById("eventTitle").textContent = `Event: ${eventName}`;
+  async function loadAndDisplay() {
+    try {
+      const bids = await fetchSheetData(formResponses2Sheet);
+      if (bids.length === 0) {
+        document.getElementById("eventTitle").textContent = "No bids found.";
+        return;
+      }
+      bids.sort((a, b) => new Date(a[0]) - new Date(b[0]));
+      const eventName = bids[0][1];
+      document.getElementById("eventTitle").textContent = `Event: ${eventName}`;
 
-        const eventBids = bids.filter(bid => bid[1] === eventName);
-        const atcBids = eventBids.filter(bid => bid[2].toLowerCase() !== "pilot");
-        const pilotBids = eventBids.filter(bid => bid[2].toLowerCase() === "pilot");
+      const eventBids = bids.filter(bid => bid[1] === eventName);
+      const atcBids = eventBids.filter(bid => bid[2].toLowerCase() !== "pilot");
+      const pilotBids = eventBids.filter(bid => bid[2].toLowerCase() === "pilot");
 
-        const atcGrouped = groupBy(atcBids, bid => bid[2]);
-        const atcContainer = document.getElementById("atcContainer");
-        const pilotContainer = document.getElementById("pilotContainer");
+      const atcGrouped = groupBy(atcBids, bid => bid[2]);
+      const atcContainer = document.getElementById("atcContainer");
+      const pilotContainer = document.getElementById("pilotContainer");
 
-        atcContainer.innerHTML = "";
-        pilotContainer.innerHTML = "";
+      atcContainer.innerHTML = "";
+      pilotContainer.innerHTML = "";
 
-        for (const position in atcGrouped) {
-          const heading = document.createElement("h2");
-          heading.textContent = position;
-          atcContainer.appendChild(heading);
+      for (const position in atcGrouped) {
+        const heading = document.createElement("h2");
+        heading.textContent = position;
+        atcContainer.appendChild(heading);
 
-          const table = document.createElement("table");
-          table.innerHTML = `
-            <thead>
-              <tr><th>Name</th><th>Callsign</th><th>Time</th></tr>
-            </thead>
-            <tbody>
-              ${atcGrouped[position].map(bid => `
-                <tr>
-                  <td>${bid[3]}</td>
-                  <td>${bid[4]}</td>
-                  <td>${bid[5]}</td>
-                </tr>
-              `).join("")}
-            </tbody>`;
-          atcContainer.appendChild(table);
-        }
-
-        // Pilots table
-        const pilotTable = document.createElement("table");
-        pilotTable.innerHTML = `
+        const table = document.createElement("table");
+        table.innerHTML = `
           <thead>
-            <tr><th>Name</th><th>Callsign</th><th>Departure Time</th></tr>
+            <tr><th>Name</th><th>Callsign</th><th>Time</th></tr>
           </thead>
           <tbody>
-            ${pilotBids.map(bid => `
+            ${atcGrouped[position].map(bid => `
               <tr>
                 <td>${bid[3]}</td>
                 <td>${bid[4]}</td>
@@ -216,44 +179,55 @@
               </tr>
             `).join("")}
           </tbody>`;
-        pilotContainer.appendChild(pilotTable);
-
-      } catch (error) {
-        document.getElementById("eventTitle").textContent = "Failed to load roster.";
-        console.error(error);
+        atcContainer.appendChild(table);
       }
+
+      const pilotTable = document.createElement("table");
+      pilotTable.innerHTML = `
+        <thead>
+          <tr><th>Name</th><th>Callsign</th><th>Departure Time</th></tr>
+        </thead>
+        <tbody>
+          ${pilotBids.map(bid => `
+            <tr>
+              <td>${bid[3]}</td>
+              <td>${bid[4]}</td>
+              <td>${bid[5]}</td>
+            </tr>
+          `).join("")}
+        </tbody>`;
+      pilotContainer.appendChild(pilotTable);
+
+    } catch (error) {
+      document.getElementById("eventTitle").textContent = "Failed to load roster.";
+      console.error(error);
     }
-    loadAndDisplay();
-  </script>
+  }
+  loadAndDisplay();
+</script>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyA92I8ATCslzGoveL_LFKproCkI0clq5XE",
-      authDomain: "skyreach-login.firebaseapp.com",
-      projectId: "skyreach-login",
-      storageBucket: "skyreach-login.firebasestorage.app",
-      messagingSenderId: "531909303327",
-      appId: "1:531909303327:web:58f4b25a6b8023ef87c92a",
-      measurementId: "G-3XKSQ6W4PY"
-    };
+const firebaseConfig = {
+  apiKey: "AIzaSyA92I8ATCslzGoveL_LFKproCkI0clq5XE",
+  authDomain: "skyreach-login.firebaseapp.com",
+  projectId: "skyreach-login",
+  storageBucket: "skyreach-login.firebasestorage.app",
+  messagingSenderId: "531909303327",
+  appId: "1:531909303327:web:58f4b25a6b8023ef87c92a",
+  measurementId: "G-3XKSQ6W4PY"
+};
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
-    onAuthStateChanged(auth, user => {
-      if (!user) {
-        window.location.href = "../login.html";
-      }
-    });
-
-    document.getElementById('logoutBtn').onclick = () => {
-      signOut(auth).then(() => {
-        window.location.href = "../login.html";
-      });
-    };
-  </script>
+onAuthStateChanged(auth, user => {
+  if (!user) {
+    window.location.href = "../login.html";
+  }
+});
+</script>
 </body>
 </html>
