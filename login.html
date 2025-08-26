@@ -91,10 +91,10 @@
   <header>
     <img src="assets/logo.png" alt="SkyReach Logo" />
     <nav>
-      <a href="index.html">Home</a>
-      <a href="login.html">Login</a>
-      <a href="signup.html">Sign Up</a>
-      <a href="contact-us.html">Contact Us</a>
+      <a href="index">Home</a>
+      <a href="login">Login</a>
+      <a href="signup">Sign Up</a>
+      <a href="contact-us">Contact Us</a>
     </nav>
   </header>
 
@@ -162,7 +162,7 @@
         const idTokenResult = await getIdTokenResult(user);
         const isAdmin = idTokenResult.claims.admin === true;
         localStorage.setItem('isAdmin', isAdmin ? 'true' : 'false');
-        window.location.href = '/gallery.html';
+        window.location.href = '/gallery';
       }
     });
   </script>
