@@ -152,7 +152,10 @@
       container.innerHTML = "";
 
       rows.forEach(row => {
-        const title = row.c[1] ? row.c[1].v : "";
+        // Skip if row has no data in column 1 (title)
+        if (!row.c || !row.c[1] || !row.c[1].v) return;
+
+        const title = row.c[1].v;
         const desc = row.c[2] ? row.c[2].v : "";
         const dateRaw = row.c[4] ? row.c[4].v : null;
         let dateStr = "";
