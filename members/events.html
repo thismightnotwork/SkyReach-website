@@ -151,64 +151,51 @@
       const container = document.getElementById("events");
       container.innerHTML = "";
 
-      let events = [];
+      const events = [];
 
       rows.forEach(row => {
-        const title = row.c[1] ? row.c[1].v : "";
-        const desc = row.c[2] ? row.c[2].v : "";
-        const dateRaw = row.c[4] ? row.c[4].v : null;
-        let dateStr = "";
-        let dateObj = null;
+        const title = row.c[1] && row.c[1].v ? row.c[1].v : "No Title";
+        const desc = row.c[2] && row.c[2].v ? row.c[2].v : "";
+        const dateRaw = row.c[4] && row.c[4].v ? row.c[4].v : null;
 
-        if (dateRaw) {
-          if (typeof dateRaw === "string" && dateRaw.includes("Date(")) {
-            const parts = dateRaw.match(/\d+/g);
-            if (parts && parts.length >= 3) {
-              const year = parts[0];
-              const month = parts[1]; // 0-based month
-              const day = parts[2];
-              dateStr = `${year}-${String(Number(month) + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-              dateObj = new Date(year, month, day);
-            }
-          } else {
-            const d = new Date(dateRaw);
-            if (!isNaN(d)) {
-              const y = d.getFullYear();
-              const m = String(d.getMonth() + 1).padStart(2, '0');
-              const day = String(d.getDate()).padStart(2, '0');
-              dateStr = `${y}-${m}-${day}`;
-              dateObj = d;
-            }
-          }
+        if (!dateRaw) return; // skip rows without a date
+
+        let dateObj, dateStr = "";
+
+        if (typeof dateRaw === "string" && dateRaw.includes("Date(")) {
+          const parts = dateRaw.match(/\d+/g);
+          dateObj = new Date(Number(parts[0]), Number(parts[1]), Number(parts[2]));
+        } else {
+          dateObj = new Date(dateRaw);
         }
 
-        if (title && dateObj) {
-          events.push({ title, desc, dateStr, dateObj });
-        }
+        if (isNaN(dateObj)) return; // skip invalid dates
+
+        // Skip past events
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (dateObj < today) return;
+
+        const y = dateObj.getFullYear();
+        const m = String(dateObj.getMonth() + 1).padStart(2, "0");
+        const d = String(dateObj.getDate()).padStart(2, "0");
+        dateStr = `${y}-${m}-${d}`;
+
+        events.push({ title, desc, dateStr, dateObj });
       });
 
-      // filter out past events
-      const today = new Date();
-      today.setHours(0,0,0,0);
-      events = events.filter(e => e.dateObj >= today);
-
-      // sort soonest first
+      // Sort events by date
       events.sort((a, b) => a.dateObj - b.dateObj);
 
-      // render
-      if (events.length === 0) {
-        container.innerHTML = "<p>No upcoming events</p>";
-        return;
-      }
-
-      events.forEach(ev => {
-        const safeId = ev.title.replace(/\W/g, "_");
+      // Render events
+      events.forEach(event => {
+        const safeId = event.title.replace(/\W/g, "_");
         const div = document.createElement("div");
         div.className = "event";
         div.innerHTML = `
-          <h2>${ev.title}</h2>
-          <p>${ev.desc}</p>
-          <p><strong>Date:</strong> ${ev.dateStr}</p>
+          <h2>${event.title}</h2>
+          <p>${event.desc}</p>
+          <p><strong>Date:</strong> ${event.dateStr}</p>
           <div class="buttons">
             <input type="text" id="name-${safeId}" placeholder="Your Name" />
             <select id="position-${safeId}" onchange="toggleFlightRules('${safeId}')">
@@ -223,11 +210,12 @@
               <option value="IFR">IFR</option>
               <option value="VFR">VFR</option>
             </select>
-            <button class="bid-btn" onclick="submitBid('${ev.title}', '${safeId}')">Bid</button>
+            <button class="bid-btn" onclick="submitBid('${event.title}', '${safeId}')">Bid</button>
           </div>
         `;
         container.appendChild(div);
       });
+
     } catch (err) {
       document.getElementById("events").innerHTML = "<p>Failed to load events, please try again later.</p>";
       console.error(err);
