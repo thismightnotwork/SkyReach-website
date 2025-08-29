@@ -1,47 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SkyReach Radar</title>
-<link rel="icon" type="image/png" href="/assets/logo.png">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
-<style>
-  body,html { margin:0; padding:0; height:100%; background:#000; color:#eee; font-family:Arial; overflow:hidden; }
-  header { background: #1e293b; padding: 1rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; color:#fff; z-index:1100; position:relative; }
-  header img { height:50px; }
-  nav { display:flex; flex-wrap:wrap; align-items:center; gap:1rem; }
-  nav a { color:#93c5fd; text-decoration:none; font-weight:bold; }
-  nav a:hover { text-decoration:underline; }
-  button#logoutBtn { background:#2563eb; border:none; padding:0.5rem 1rem; border-radius:5px; color:#fff; cursor:pointer; white-space:nowrap; }
-  button#logoutBtn:hover { background:#1e40af; }
-  main { position:relative; height: calc(100vh - 70px); width:100%; overflow:hidden; }
-  #sidebar-left { position:absolute; top:0; left:0; bottom:0; width:320px; background:#111; border-right:1px solid #333; padding:10px; overflow-y:auto; z-index:1000; box-sizing:border-box; transform: translateX(0); transition: transform 0.3s ease; }
-  #sidebar-left.hidden { transform: translateX(-100%); }
-  #sidebar-right { position:absolute; top:0; right:0; bottom:0; width:300px; background:#111; border-left:1px solid #333; padding:10px; overflow-y:auto; z-index:1001; box-sizing:border-box; transform: translateX(100%); transition: transform 0.3s ease; }
-  #sidebar-right.visible { transform: translateX(0); }
-  #map { position:absolute; top:0; bottom:0; left:320px; right:0; transition: left 0.3s ease; z-index:0; }
-  #map.full-width { left:0 !important; }
-  #flightsList { list-style:none; padding:0; margin:0; font-size:14px; }
-  #flightsList li { border-bottom:1px solid #222; padding:8px 4px; cursor:pointer; }
-  #flightsList li:hover { background:#222; }
-  .leaflet-container { background:#111 !important; color:white !important; }
-  #refreshBtn { background:#222; border:none; color:#eee; padding:8px 16px; width:100%; cursor:pointer; border-radius:4px; margin-bottom:10px; }
-  #refreshBtn:hover { background:#444; }
-  #status { font-size:13px; color:#999; margin-bottom:10px; min-height:18px; }
-  select,input[type="text"] { width:100%; padding:6px; margin-bottom:10px; background:#222; color:#eee; border:1px solid #444; border-radius:4px; font-weight:bold; letter-spacing:2px; text-transform:uppercase; box-sizing:border-box; }
-  .legend { display:flex; gap:12px; margin-bottom:10px; align-items:center; }
-  .legend-item { display:flex; align-items:center; gap:6px; }
-  .legend-item img { width:20px; height:20px; transform:rotate(-45deg); }
-  .legend-item.vatsim img { filter: brightness(0) saturate(100%) invert(17%) sepia(94%) saturate(3459%) hue-rotate(203deg) brightness(58%) contrast(105%); }
-  footer { text-align:center; padding:1rem 0; background:#1e293b; color:#ccc; font-size:0.9rem; margin-top:0; position:absolute; bottom:0; width:100%; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SkyReach - Live Flights Radar</title>
+  <link rel="icon" type="image/png" href="/assets/logo.png" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <style>
+    :root {
+      --bg: #000;
+      --panel: #0b0b0b;
+      --panel-2: #111;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #2563eb;
+      --border: #333;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; background: var(--bg); color: var(--text); font-family: Arial, Helvetica, sans-serif; overflow: hidden; }
+
+    header { background: #1e293b; color: white; padding: .75rem 1rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; position: relative; z-index: 1100; }
+    header img { height: 44px; }
+    nav { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+    nav a { color: #93c5fd; text-decoration: none; font-weight: bold; }
+    nav a:hover { text-decoration: underline; }
+    button#logoutBtn { background: var(--accent); border: none; padding: .45rem .9rem; border-radius: 6px; color: white; cursor: pointer; white-space: nowrap; }
+    button#logoutBtn:hover { filter: brightness(1.1); }
+
+    main { position: relative; height: calc(100vh - 70px); width: 100%; overflow: hidden; }
+
+    #sidebar-left { position: absolute; top: 0; left: 0; bottom: 0; width: 360px; background: var(--panel-2); border-right: 1px solid var(--border); padding: 12px; overflow-y: auto; z-index: 1000; transform: translateX(0); transition: transform .25s ease; }
+    #sidebar-left.hidden { transform: translateX(-100%); }
+
+    #sidebar-right { position: absolute; top: 0; right: 0; bottom: 0; width: 340px; background: var(--panel-2); border-left: 1px solid var(--border); padding: 12px; overflow-y: auto; z-index: 1001; transform: translateX(100%); transition: transform .25s ease; }
+    #sidebar-right.visible { transform: translateX(0); }
+
+    #map { position: absolute; top: 0; bottom: 0; left: 360px; right: 0; transition: left .25s ease; z-index: 0; }
+    #map.full-width { left: 0 !important; }
+    .leaflet-container { background: #0a0a0a !important; color: white; }
+
+    #flightsList { list-style: none; padding: 0; margin: 0; font-size: 14px; }
+    #flightsList li { border-bottom: 1px solid #222; padding: 8px 4px; cursor: pointer; display:flex; gap:8px; align-items:center; }
+    #flightsList li:hover { background: #1a1a1a; }
+
+    .legend { display: flex; gap: 12px; margin-bottom: 10px; align-items: center; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+    .legend-item img { width: 18px; height: 18px; transform: rotate(-45deg); }
+    .legend-item.vatsim img { filter: brightness(0) saturate(100%) invert(17%) sepia(94%) saturate(3459%) hue-rotate(203deg) brightness(58%) contrast(105%); }
+
+    select, input[type="text"], input[type="checkbox"] + label, button { font-weight: 600; letter-spacing: .5px; }
+    select, input[type="text"] { width: 100%; padding: 7px 9px; margin-bottom: 10px; background: #161616; color: var(--text); border: 1px solid #3a3a3a; border-radius: 6px; text-transform: uppercase; }
+
+    #refreshBtn, .tool-btn { background: #1a1a1a; border: 1px solid #2a2a2a; color: var(--text); padding: 8px 10px; width: 100%; cursor: pointer; border-radius: 6px; margin-bottom: 10px; }
+    #refreshBtn:hover, .tool-btn:hover { background: #232323; }
+
+    #status { font-size: 12px; color: var(--muted); margin: 8px 0 12px; min-height: 18px; }
+
+    .tools { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+
+    .ac-label { pointer-events: none; position: absolute; transform: translate(10px, -22px); background: rgba(0,0,0,.65); backdrop-filter: blur(2px); border: 1px solid #2d2d2d; color: #e5e7eb; padding: 4px 6px; border-radius: 6px; font-size: 12px; line-height: 1.2; white-space: nowrap; }
+    .ac-line { position: absolute; width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 10px solid rgba(0,0,0,.65); transform: translate(10px, -12px); }
+    .label-net-vatsim { border-color: #1e3a8a; }
+    .label-net-ivao { border-color: #0a7a3b; }
+
+    footer { text-align: center; padding: .75rem 0; background: #1e293b; color: #ccc; font-size: .9rem; position: absolute; bottom: 0; width: 100%; }
+  </style>
 </head>
 <body>
 <header>
-  <img src="../assets/logo.png" alt="SkyReach Logo">
+  <img src="../assets/logo.png" alt="SkyReach Logo" />
   <nav>
     <a href="ivao-list">IVAO List</a>
     <a href="vatsim-list">VATSIM List</a>
@@ -56,283 +83,227 @@
 
 <main>
   <div id="sidebar-left">
-    <h2>Live Flights</h2>
+    <h2 style="margin:6px 0 10px">Live Radar</h2>
     <div class="legend">
       <div class="legend-item ivao"><img src="https://raw.githubusercontent.com/thismightnotwork/Metar/main/pngkey.com-plane-icon-png-1382606.png" alt="IVAO"><span>IVAO</span></div>
       <div class="legend-item vatsim"><img src="https://raw.githubusercontent.com/thismightnotwork/Metar/main/pngkey.com-plane-icon-png-1382606.png" alt="VATSIM"><span>VATSIM</span></div>
     </div>
+
     <select id="networkFilter">
-      <option value="BOTH">Both</option>
+      <option value="BOTH">Both Networks</option>
       <option value="IVAO">IVAO</option>
       <option value="VATSIM">VATSIM</option>
     </select>
-    <input id="icaoInput" maxlength="3" placeholder="ICAO (e.g. SRH)" value="SRH">
-    <button id="refreshBtn">Update</button>
-    <label><input type="checkbox" id="showTrails" checked> Show Trails</label>
-    <label><input type="checkbox" id="showMETAR" checked> Show METAR</label>
-    <label><input type="checkbox" id="showSectors" checked> Show Sectors</label>
-    <label><input type="checkbox" id="showRings" checked> Show Range Rings</label>
-    <div id="status">Loading flights...</div>
+    <input id="icaoInput" maxlength="3" placeholder="ICAO (e.g. SRH)" value="SRH" />
+
+    <div class="tools">
+      <button id="refreshBtn" class="tool-btn">Update</button>
+      <button id="toggleAuto" class="tool-btn">Auto: ON</button>
+    </div>
+
+    <div class="tools">
+      <button id="toggleLabels" class="tool-btn">Labels: ON</button>
+      <button id="toggleTrails" class="tool-btn">Trails: ON</button>
+    </div>
+
+    <div class="tools">
+      <button id="fitAll" class="tool-btn">Fit All Flights</button>
+      <button id="followSelected" class="tool-btn">Follow Selected: OFF</button>
+    </div>
+
+    <div id="status"></div>
     <ul id="flightsList"></ul>
   </div>
 
   <div id="map"></div>
 
-  <div id="sidebar-right">
-    <h2>Flight Info</h2>
-    <div id="flightDetails">Click an aircraft to view details.</div>
-  </div>
+  <div id="sidebar-right"></div>
 </main>
 
+<footer>SkyReach Live Radar © 2025</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+  let map = L.map('map').setView([51.505, -0.09], 5);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OSM' }).addTo(map);
 
-const firebaseConfig = {
-  apiKey: "AIzaSyA92I8ATCslzGoveL_LFKproCkI0clq5XE",
-  authDomain: "skyreach-login.firebaseapp.com",
-  projectId: "skyreach-login",
-  storageBucket: "skyreach-login.firebasestorage.app",
-  messagingSenderId: "531909303327",
-  appId: "1:531909303327:web:58f4b25a6b8023ef87c92a",
-  measurementId: "G-3XKSQ6W4PY"
-};
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-onAuthStateChanged(auth,user=>{if(!user)window.location.href="../login.html";});
-document.getElementById('logoutBtn').onclick=()=>signOut(auth).then(()=>window.location.href="../login.html");
+  const markers = new Map();
+  const labels = new Map();
+  const trails = new Map();
+  let selectedId = null;
+  let followSelected = false;
+  let showLabels = true;
+  let showTrails = true;
+  let autoUpdate = true;
+  const TRAIL_MAX_POINTS = 50;
+  const TRAIL_PRUNE_MS = 5*60*1000;
 
-import L from "https://unpkg.com/leaflet@1.9.4/dist/leaflet-src.esm.js";
-import "https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js";
+  // --- Helpers ---
+  function idFor(f) { return `${f.callsign}-${f.departure}-${f.arrival}`; }
+  function getPos(f) { return { lat: f.latitude, lon: f.longitude, alt: f.altitude }; }
+  function aircraftType(f) { return f.aircraft || 'N/A'; }
 
-const map = L.map('map').setView([51.5,0],4);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{ maxZoom:18, attribution:'&copy; OpenStreetMap contributors &copy; CARTO' }).addTo(map);
-
-const flightDetailsEl = document.getElementById('flightDetails'),
-      sidebarRightEl = document.getElementById('sidebar-right'),
-      sidebarLeftEl = document.getElementById('sidebar-left'),
-      mapEl = document.getElementById('map'),
-      statusEl = document.getElementById('status'),
-      flightsListEl = document.getElementById('flightsList'),
-      refreshBtn = document.getElementById('refreshBtn'),
-      icaoInput = document.getElementById('icaoInput'),
-      networkFilter = document.getElementById('networkFilter'),
-      showTrails = document.getElementById('showTrails'),
-      showMETAR = document.getElementById('showMETAR'),
-      showSectors = document.getElementById('showSectors'),
-      showRings = document.getElementById('showRings');
-
-const planeIconBase = 'https://raw.githubusercontent.com/thismightnotwork/Metar/main/pngkey.com-plane-icon-png-1382606.png';
-
-let markers = {}, trails = {}, metarLayers = L.layerGroup().addTo(map), sectorLayers = L.layerGroup().addTo(map), ringsLayer = L.layerGroup().addTo(map);
-let clusterGroup = L.markerClusterGroup({chunkedLoading:true});
-map.addLayer(clusterGroup);
-
-function clearFlightDetails(){ flightDetailsEl.innerHTML='Click an aircraft to view details.'; }
-
-function formatHHMM(h){ if(!h||typeof h!=='string'||h.length!==4)return 'N/A'; return h.slice(0,2)+':'+h.slice(2)+' UTC'; }
-function secondsToTime(s){ if(typeof s!=='number'||isNaN(s)) return 'N/A'; const h=Math.floor(s/3600); const m=Math.floor((s%3600)/60); return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')} UTC`; }
-
-function showFlightDetails(f){
-  let dep='???', arr='???', depTime='N/A', arrTime='N/A', aircraft='N/A';
-  if(f.network==='VATSIM'){
-    dep=f.flight_plan?.departure||f.departure||'???';
-    arr=f.flight_plan?.arrival||f.arrival||'???';
-    depTime=formatHHMM(f.flight_plan?.deptime||f.deptime);
-    arrTime=formatHHMM(f.flight_plan?.arrivaltime||f.eArrivaltime);
-    aircraft=f.flight_plan?.aircraft_short||f.flight_plan?.aircraft||f.aircraft_short||f.aircraft||'N/A';
-  } else {
-    dep=f.flightPlan?.departureId||f.departure||'???';
-    arr=f.flightPlan?.arrivalId||f.arrival||'???';
-    depTime=secondsToTime(f.flightPlan?.departureTime);
-    arrTime=secondsToTime(f.flightPlan?.arrivalTime);
-    aircraft=f.flightPlan?.aircraftId||f.aircraft_short||'N/A';
-  }
-  const altitude=f.lastTrack?.altitude||f.altitude||'N/A';
-  const speed=f.lastTrack?.groundSpeed||f.groundspeed||'N/A';
-  const heading=f.lastTrack?.heading||f.heading||'N/A';
-
-  flightDetailsEl.innerHTML=`<b>${f.callsign||'N/A'}</b><br/>
-  Network: ${f.network}<br/>
-  Aircraft: ${aircraft}<br/>
-  Departure: ${dep}<br/>
-  Arrival: ${arr}<br/>
-  Altitude: ${altitude} ft<br/>
-  Speed: ${speed} kt<br/>
-  Heading: ${heading}°<br/>
-  Departure Time: ${depTime}<br/>
-  Arrival Time: ${arrTime}`;
-  sidebarRightEl.classList.add('visible');
-  sidebarLeftEl.classList.add('hidden');
-  mapEl.classList.add('full-width');
-}
-
-function drawMarker(f){
-  const lat=f.lastTrack?.latitude||f.latitude;
-  const lon=f.lastTrack?.longitude||f.longitude;
-  if(typeof lat!=='number'||typeof lon!=='number') return;
-  const heading=f.lastTrack?.heading||f.heading||0;
-  const filter=f.network==='VATSIM'? 'brightness(0) saturate(100%) invert(17%) sepia(94%) saturate(3459%) hue-rotate(203deg) brightness(58%) contrast(105%)':'';
-  let m = markers[f.callsign];
-  if(!m){
-    const icon = L.divIcon({className:'', iconSize:[22,22], iconAnchor:[11,11], html:`<img src="${planeIconBase}" style="transform:rotate(${heading-45}deg);width:22px;height:22px;filter:${filter};"/>`});
-    m = L.marker([lat,lon],{icon});
-    m.on('click',()=>showFlightDetails(f));
-    markers[f.callsign]=m;
-    clusterGroup.addLayer(m);
-  } else {
-    m.setLatLng([lat,lon]);
-    const icon = m.getIcon();
-    icon.options.html=`<img src="${planeIconBase}" style="transform:rotate(${heading-45}deg);width:22px;height:22px;filter:${filter};"/>`;
-    m.setIcon(icon);
-  }
-
-  if(showTrails.checked){
-    if(!trails[f.callsign]) trails[f.callsign] = L.polyline([[lat,lon]],{color:'lime',weight:2,opacity:0.7}).addTo(map);
-    else{
-      const latlngs = trails[f.callsign].getLatLngs();
-      latlngs.push([lat,lon]);
-      if(latlngs.length>20) latlngs.shift();
-      trails[f.callsign].setLatLngs(latlngs);
+  function upsertMarker(id, f) {
+    const pos = getPos(f);
+    if (pos.lat == null || pos.lon == null) return null;
+    let mk = markers.get(id);
+    if (!mk) {
+      mk = L.marker([pos.lat, pos.lon]).addTo(map);
+      mk.on('click', () => selectFlight(id, f));
+      markers.set(id, mk);
+    } else {
+      mk.setLatLng([pos.lat, pos.lon]);
     }
-  } else {
-    if(trails[f.callsign]) { map.removeLayer(trails[f.callsign]); delete trails[f.callsign]; }
+    return mk;
   }
-}
 
-function renderFlights(flights){
-  flightsListEl.innerHTML='';
-  flights.forEach(f=>{
-    drawMarker(f);
-    let dep=f.network==='VATSIM'? f.flight_plan?.departure||f.departure:'???';
-    let arr=f.network==='VATSIM'? f.flight_plan?.arrival||f.arrival:'???';
-    const aircraft=f.flight_plan?.aircraft_short||f.flightPlan?.aircraftId||'N/A';
-    const li=document.createElement('li');
-    li.textContent=`${f.callsign||'N/A'} (${aircraft}) - ${dep} → ${arr} [${f.network}]`;
-    li.onclick=()=>showFlightDetails(f);
-    flightsListEl.appendChild(li);
-  });
-}
+  function upsertLabel(id, f, latlng) {
+    if (!showLabels) return;
+    let label = labels.get(id);
+    if (!label) {
+      label = L.tooltip({ permanent:true, direction:'top', className:'ac-label' })
+        .setContent(f.callsign)
+        .setLatLng(latlng).addTo(map);
+      labels.set(id, label);
+    } else {
+      label.setLatLng(latlng);
+      label.setContent(f.callsign);
+    }
+  }
 
-// Fetch IVAO
-async function getIVAOFlights(){
-  try{
-    const tokenRes=await fetch('https://ivao-token-server.onrender.com/token');
-    const token=(await tokenRes.json()).token;
-    const res=await fetch('https://api.ivao.aero/v2/tracker/whazzup',{headers:{Authorization:'Bearer '+token,Accept:'application/json'}});
-    const js=await res.json();
-    return js.clients.pilots.map(f=>({...f,network:'IVAO'}));
-  }catch(e){ console.error('IVAO fetch error:',e); return []; }
-}
+  function removeMarker(id) {
+    const mk = markers.get(id);
+    if (mk) map.removeLayer(mk);
+    markers.delete(id);
+    const lbl = labels.get(id);
+    if (lbl) map.removeLayer(lbl);
+    labels.delete(id);
+    const tr = trails.get(id);
+    if (tr?.line) map.removeLayer(tr.line);
+    trails.delete(id);
+  }
 
-// Fetch VATSIM
-async function getVATSIMFlights(){
-  try{
-    const res=await fetch('https://data.vatsim.net/v3/vatsim-data.json');
-    const js=await res.json();
-    return js.pilots.map(f=>({...f,network:'VATSIM'}));
-  }catch(e){ console.error('VATSIM fetch error:',e); return []; }
-}
+  function upsertTrail(id, f, latlng, alt) {
+    if (id !== selectedId || !showTrails) return;
+    const now = Date.now();
+    let entry = trails.get(id);
+    if (!entry) {
+      entry = { points: [], line: L.polyline([], { color: '#0f0', weight:2, opacity:0.8 }).addTo(map) };
+      trails.set(id, entry);
+    }
+    entry.points.push({ lat: latlng.lat, lon: latlng.lng, alt: alt, t: now });
+    if (entry.points.length > TRAIL_MAX_POINTS) entry.points.splice(0, entry.points.length - TRAIL_MAX_POINTS);
+    const cutoff = now - TRAIL_PRUNE_MS;
+    while (entry.points.length && entry.points[0].t < cutoff) entry.points.shift();
+    entry.line.setLatLngs(entry.points.map(pt => [pt.lat, pt.lon]));
+  }
 
-// METAR overlay
-async function fetchMETAR(){
-  metarLayers.clearLayers();
-  if(!showMETAR.checked) return;
-  try{
-    const res=await fetch('https://avwx.rest/api/metar/KJFK?options=info', {headers:{Authorization:'Bearer demo'}}); // Replace 'demo' with actual API key
-    const data=await res.json();
-    const marker=L.marker([data.latitude,data.longitude]).bindPopup(`${data.icao}: ${data.wind_direction}° ${data.wind_speed}kt, ${data.visibility}sm`);
-    metarLayers.addLayer(marker);
-  }catch(e){ console.error('METAR fetch error',e); }
-}
+  function selectFlight(id, f) {
+    if (selectedId && trails.has(selectedId)) {
+      const t = trails.get(selectedId);
+      if (t.line) map.removeLayer(t.line);
+      trails.delete(selectedId);
+    }
+    selectedId = id;
+    followSelected = false;
+    followBtn.textContent = 'Follow Selected: OFF';
+    showFlightDetails(f);
+    const pos = getPos(f);
+    if (pos.lat != null && pos.lon != null) {
+      map.panTo([pos.lat,pos.lon]);
+      upsertTrail(id,f,L.latLng(pos.lat,pos.lon),pos.alt);
+    }
+  }
 
-// Controller sectors (example)
-function drawSectors(){
-  sectorLayers.clearLayers();
-  if(!showSectors.checked) return;
-  const sectors=[{name:'Sector A',coords:[[52,-1],[53,-1],[53,0],[52,0]]},{name:'Sector B',coords:[[51,0],[52,0],[52,1],[51,1]]}];
-  sectors.forEach(s=>{
-    const poly=L.polygon(s.coords,{color:'cyan',fillOpacity:0.1}).bindPopup(s.name);
-    sectorLayers.addLayer(poly);
-  });
-}
+  function showFlightDetails(f) {
+    const right = document.getElementById('sidebar-right');
+    right.classList.add('visible');
+    right.innerHTML = `
+      <h3>${f.callsign || 'N/A'}</h3>
+      <p><b>Aircraft:</b> ${aircraftType(f)}</p>
+      <p><b>Dep:</b> ${f.departure || 'N/A'} → <b>Arr:</b> ${f.arrival || 'N/A'}</p>
+      <p><b>Altitude:</b> ${f.altitude ?? 'N/A'} ft</p>
+      <p><b>Speed:</b> ${f.speed ?? 'N/A'} kts</p>
+      <p><b>Network:</b> ${f.network}</p>
+    `;
+  }
 
-// Range rings
-function drawRings(){
-  ringsLayer.clearLayers();
-  if(!showRings.checked) return;
-  const center=map.getCenter();
-  [50,100,200].forEach(r=>{
-    const circle=L.circle(center,{radius:r*1852,color:'yellow',fill:false,weight:1});
-    ringsLayer.addLayer(circle);
-  });
-}
+  // --- Fetch ---
+  async function getFlightsFromServer() {
+    try {
+      const res = await fetch('https://live-map-vg55.onrender.com');
+      const flights = await res.json();
+      return flights.map(f => ({ ...f, network: f.network || 'BOTH' }));
+    } catch(e) {
+      console.error('Error fetching flights:', e);
+      return [];
+    }
+  }
 
-async function updateFlights(){
-  statusEl.textContent='Loading flights...';
-  try{
-    const [ivao,vatsim]=await Promise.all([getIVAOFlights(),getVATSIMFlights()]);
-    let combined=[];
-    const netFilter=networkFilter.value;
-    if(netFilter==='IVAO') combined=ivao;
-    else if(netFilter==='VATSIM') combined=vatsim;
-    else combined=ivao.concat(vatsim);
+  async function updateFlights() {
+    statusEl.textContent = 'Loading flights...';
+    try {
+      const flights = await getFlightsFromServer();
+      const netFilter = networkFilter.value;
+      const prefix = icaoInput.value.trim().toUpperCase();
+      const filtered = flights.filter(f => {
+        if (netFilter !== 'BOTH' && f.network !== netFilter) return false;
+        if (!prefix) return true;
+        const dep = (f.departure||'').toUpperCase();
+        const arr = (f.arrival||'').toUpperCase();
+        return dep.startsWith(prefix) || arr.startsWith(prefix) || (f.callsign && f.callsign.toUpperCase().startsWith(prefix));
+      });
 
-    const prefix=icaoInput.value.trim().toUpperCase();
-    if(prefix) combined=combined.filter(f=>{
-      let dep=(f.flight_plan?.departure||f.flightPlan?.departureId||f.departure||'').toUpperCase();
-      let arr=(f.flight_plan?.arrival||f.flightPlan?.arrivalId||f.arrival||'').toUpperCase();
-      return dep.startsWith(prefix)||arr.startsWith(prefix)||(f.callsign&&f.callsign.toUpperCase().startsWith(prefix));
+      const seen = new Set();
+      filtered.forEach(f=>{
+        const id = idFor(f);
+        seen.add(id);
+        const mk = upsertMarker(id,f);
+        if (!mk) return;
+        upsertLabel(id,f,mk.getLatLng());
+        upsertTrail(id,f,mk.getLatLng(),getPos(f).alt);
+        if (selectedId===id && followSelected) map.panTo(mk.getLatLng());
+      });
+
+      Array.from(markers.keys()).forEach(id=>{ if(!seen.has(id)) removeMarker(id); });
+      statusEl.textContent = filtered.length ? `Showing ${filtered.length} flights` : 'No flights found.';
+      renderFlightsList(filtered);
+    } catch(e) { console.error(e); statusEl.textContent='Error loading flights.'; }
+  }
+
+  function renderFlightsList(flights) {
+    flightsListEl.innerHTML = '';
+    flights.forEach(f=>{
+      const li = document.createElement('li');
+      li.textContent = `${f.callsign || 'N/A'} (${aircraftType(f)}) [${f.network}]`;
+      li.onclick = () => selectFlight(idFor(f),f);
+      flightsListEl.appendChild(li);
     });
-
-    if(combined.length===0){
-      statusEl.textContent='No flights found.';
-      flightsListEl.innerHTML='';
-      clusterGroup.clearLayers();
-      clearFlightDetails();
-      return;
-    }
-
-    statusEl.textContent=`Showing ${combined.length} flights`;
-    renderFlights(combined);
-    drawSectors();
-    drawRings();
-    fetchMETAR();
-  }catch(e){ statusEl.textContent='Error loading flights.'; console.error(e); }
-}
-
-refreshBtn.onclick=updateFlights;
-networkFilter.onchange=updateFlights;
-icaoInput.oninput=()=>{ if(icaoInput.value.length>3) icaoInput.value=icaoInput.value.slice(0,3); }
-showTrails.onchange=updateFlights;
-showMETAR.onchange=updateFlights;
-showSectors.onchange=updateFlights;
-showRings.onchange=updateFlights;
-
-map.on('click',()=>{
-  const leftHidden=sidebarLeftEl.classList.contains('hidden');
-  const rightVisible=sidebarRightEl.classList.contains('visible');
-  if(!leftHidden||rightVisible){
-    sidebarLeftEl.classList.add('hidden');
-    sidebarRightEl.classList.remove('visible');
-    mapEl.classList.add('full-width');
-    clearFlightDetails();
-  } else {
-    sidebarLeftEl.classList.remove('hidden');
-    sidebarRightEl.classList.remove('visible');
-    mapEl.classList.remove('full-width');
-    clearFlightDetails();
   }
-});
 
-// Initial load
-updateFlights();
-setInterval(updateFlights,60000); // auto refresh every 60s
+  function startTimer() { setInterval(()=>{ if(autoUpdate) updateFlights(); },10000); }
+
+  // --- DOM Elements ---
+  const flightsListEl = document.getElementById('flightsList');
+  const networkFilter = document.getElementById('networkFilter');
+  const icaoInput = document.getElementById('icaoInput');
+  const statusEl = document.getElementById('status');
+  const refreshBtn = document.getElementById('refreshBtn');
+  const toggleAuto = document.getElementById('toggleAuto');
+  const toggleLabelsBtn = document.getElementById('toggleLabels');
+  const toggleTrailsBtn = document.getElementById('toggleTrails');
+  const followBtn = document.getElementById('followSelected');
+  const fitAllBtn = document.getElementById('fitAll');
+
+  refreshBtn.onclick = updateFlights;
+  toggleAuto.onclick = () => { autoUpdate=!autoUpdate; toggleAuto.textContent=`Auto: ${autoUpdate?'ON':'OFF'}`; };
+  toggleLabelsBtn.onclick = ()=>{ showLabels=!showLabels; toggleLabelsBtn.textContent=`Labels: ${showLabels?'ON':'OFF'}`; };
+  toggleTrailsBtn.onclick = ()=>{ showTrails=!showTrails; toggleTrailsBtn.textContent=`Trails: ${showTrails?'ON':'OFF'}`; };
+  followBtn.onclick = ()=>{ followSelected=!followSelected; followBtn.textContent=`Follow Selected: ${followSelected?'ON':'OFF'}`; };
+  fitAllBtn.onclick = ()=>{ const group = L.featureGroup(Array.from(markers.values())); if(group.getLayers().length) map.fitBounds(group.getBounds()); };
+
+  updateFlights();
+  startTimer();
 </script>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-
-<footer>&copy; 2025 SkyReach Virtual Airline — All rights reserved.</footer>
 </body>
 </html>
