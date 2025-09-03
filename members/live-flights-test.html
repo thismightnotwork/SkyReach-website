@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SkyReach - Live Flights</title>
-  <link rel="icon" type="image/png" href="/assets/logo.png" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkyReach - Live Flights Radar</title>
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -12,138 +11,147 @@
     crossorigin=""
   />
   <style>
-    body, html { margin: 0; padding: 0; height: 100%; background: #000; color: #fff; font-family: sans-serif; }
-    #map { height: 100%; width: 100%; }
-    .info { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 5px; z-index: 1000; max-width: 250px; }
-    .flight-list { max-height: 400px; overflow-y: auto; margin-top: 5px; }
-    .flight-item { cursor: pointer; padding: 2px 0; border-bottom: 1px solid #333; }
-    .flight-item:hover { background: #222; }
+    html, body { margin:0; padding:0; height:100%; font-family: sans-serif; background:#000; color:#fff; }
+    #map { width: 100%; height: 100%; }
+    .sidebar {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 300px;
+      height: 100%;
+      background: rgba(0,0,0,0.85);
+      overflow-y: auto;
+      padding: 10px;
+      z-index: 1000;
+      box-shadow: -2px 0 5px rgba(0,0,0,0.5);
+    }
+    .sidebar h2 { margin-top:0; font-size: 20px; color:#fff; border-bottom: 1px solid #333; padding-bottom: 5px; }
+    .flight-item {
+      padding: 5px 8px;
+      margin-bottom: 3px;
+      border-radius: 3px;
+      cursor: pointer;
+      background: rgba(255,255,255,0.05);
+    }
+    .flight-item:hover { background: rgba(255,255,255,0.15); }
+    .info-box {
+      font-size: 13px;
+      line-height: 1.3;
+      margin-top: 5px;
+    }
   </style>
 </head>
 <body>
-  <div id="map"></div>
-  <div class="info">
-    <div id="status">Loading flights...</div>
-    <div class="flight-list" id="flightList"></div>
-  </div>
+<div id="map"></div>
+<div class="sidebar">
+  <h2>SkyReach Live Flights</h2>
+  <div id="flightList"></div>
+  <div class="info-box" id="flightInfo">Click a flight for details.</div>
+</div>
 
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-o9N1j6LTVMShnHdx6mdF1odY6k9fS4T9g+Xh2j8mC3A="
-    crossorigin=""
-  ></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+ integrity="sha256-o9N1j6LTVMShnHdx6mdF1odY6k9fS4T9g+Xh2j8mC3A=" crossorigin="">
+</script>
+<script>
+const map = L.map('map').setView([51.5, -0.1], 5);
 
-  <script>
-    const map = L.map('map').setView([51.5, -0.1], 5);
+// Dark tiles
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OpenStreetMap &copy; CARTO',
+  subdomains: 'abcd',
+  maxZoom: 19
+}).addTo(map);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
+const RENDER_BACKEND = 'https://YOUR_RENDER_BACKEND_URL'; // <- CHANGE THIS
 
-    const markers = new Map();
-    const trails = new Map();
-    let selectedId = null;
+const markers = new Map();
+const trails = new Map();
 
-    const RENDER_BACKEND = 'https://https://live-map-vg55.onrender.com'; // <- CHANGE THIS
+function idFor(f) { return f.network + ':' + (f.cid || f.userId || f.callsign); }
+function getLatLng(f) { return [f.latitude || f.lastTrack?.latitude, f.longitude || f.lastTrack?.longitude]; }
 
-    function idFor(flight) {
-      return flight.network + ':' + (flight.cid || flight.userId || flight.callsign);
-    }
+function colorByAltitude(alt) {
+  if (!alt) return 'white';
+  if (alt < 10000) return 'green';
+  if (alt < 30000) return 'yellow';
+  return 'red';
+}
 
-    function getLatLng(flight) {
-      return [flight.latitude || flight.lastTrack?.latitude, flight.longitude || flight.lastTrack?.longitude];
-    }
+function createMarker(f) {
+  const latlng = getLatLng(f);
+  const marker = L.circleMarker(latlng, {
+    radius: 5,
+    color: f.network === 'IVAO' ? 'cyan' : 'orange',
+    fillColor: f.network === 'IVAO' ? 'cyan' : 'orange',
+    fillOpacity: 1
+  }).addTo(map);
 
-    function createMarker(flight) {
-      const latlng = getLatLng(flight);
-      const marker = L.circleMarker(latlng, {
-        radius: 5,
-        color: flight.network === 'IVAO' ? 'cyan' : 'orange',
-        fillColor: flight.network === 'IVAO' ? 'cyan' : 'orange',
-        fillOpacity: 1
-      }).addTo(map);
+  marker.bindTooltip(f.callsign || '???', {permanent:true, direction:'top'});
+  marker.on('click', () => showDetails(f));
+  return marker;
+}
 
-      marker.bindTooltip(flight.callsign || '???', { permanent: true, direction: 'top' });
-      marker.on('click', () => { selectedId = idFor(flight); showDetails(flight); });
-      return marker;
-    }
+function createTrail(f) {
+  return L.polyline([], { color: colorByAltitude(f.altitude), weight: 2 }).addTo(map);
+}
 
-    function createTrail(flight) {
-      const trail = L.polyline([], { color: flight.network === 'IVAO' ? 'cyan' : 'orange' }).addTo(map);
-      return trail;
-    }
+function showDetails(f) {
+  document.getElementById('flightInfo').innerHTML = `
+    <strong>${f.callsign || '???'}</strong><br>
+    Network: ${f.network}<br>
+    Altitude: ${f.altitude || 'N/A'} ft<br>
+    Speed: ${f.speed || 'N/A'} kts<br>
+    Lat/Lon: ${getLatLng(f).map(n => n.toFixed(4)).join(', ')}
+  `;
+}
 
-    function showDetails(flight) {
-      document.getElementById('status').innerText = `
-        Callsign: ${flight.callsign || '???'}
-        Network: ${flight.network}
-        Altitude: ${flight.altitude || 'N/A'} ft
-        Lat/Lon: ${getLatLng(flight).map(n => n.toFixed(4)).join(', ')}
-      `;
-    }
+async function fetchFlights() {
+  try {
+    const res = await fetch(`${RENDER_BACKEND}/flights`);
+    const data = await res.json();
+    return data.flights || [];
+  } catch(e) { console.error(e); return []; }
+}
 
-    async function fetchFlights() {
-      try {
-        const res = await fetch(`${RENDER_BACKEND}/flights`);
-        const data = await res.json();
-        return data.flights || [];
-      } catch(e) {
-        console.error(e);
-        return [];
-      }
-    }
+function renderFlightList(flights) {
+  const container = document.getElementById('flightList');
+  container.innerHTML = '';
+  flights.forEach(f => {
+    const div = document.createElement('div');
+    div.className = 'flight-item';
+    div.innerText = `${f.callsign || '???'} (${f.network})`;
+    div.onclick = () => { map.panTo(getLatLng(f)); showDetails(f); };
+    container.appendChild(div);
+  });
+}
 
-    async function updateFlights() {
-      const flights = await fetchFlights();
-      const seen = new Set();
+async function updateFlights() {
+  const flights = await fetchFlights();
+  const seen = new Set();
 
-      // Update markers & trails
-      flights.forEach(f => {
-        const id = idFor(f);
-        seen.add(id);
+  flights.forEach(f => {
+    const id = idFor(f);
+    seen.add(id);
 
-        let marker = markers.get(id);
-        if (!marker) {
-          marker = createMarker(f);
-          markers.set(id, marker);
-        } else {
-          marker.setLatLng(getLatLng(f));
-        }
+    let marker = markers.get(id);
+    if (!marker) { marker = createMarker(f); markers.set(id, marker); }
+    else { marker.setLatLng(getLatLng(f)); }
 
-        let trail = trails.get(id);
-        if (!trail) {
-          trail = createTrail(f);
-          trails.set(id, trail);
-        }
+    let trail = trails.get(id);
+    if (!trail) { trail = createTrail(f); trails.set(id, trail); }
+    const points = f.points || [];
+    trail.setLatLngs(points.map(p => [p.lat, p.lon]));
+  });
 
-        // Update trail points
-        const points = f.points || [];
-        trail.setLatLngs(points.map(p => [p.lat, p.lon]));
-      });
+  // Remove disconnected
+  markers.forEach((m,id)=>{ if(!seen.has(id)){ map.removeLayer(m); markers.delete(id); } });
+  trails.forEach((t,id)=>{ if(!seen.has(id)){ map.removeLayer(t); trails.delete(id); } });
 
-      // Remove disconnected aircraft
-      markers.forEach((m, id) => { if (!seen.has(id)) { map.removeLayer(m); markers.delete(id); } });
-      trails.forEach((t, id) => { if (!seen.has(id)) { map.removeLayer(t); trails.delete(id); } });
+  renderFlightList(flights);
+}
 
-      renderFlightList(flights);
-      document.getElementById('status').innerText = `Showing ${flights.length} flights`;
-    }
-
-    function renderFlightList(flights) {
-      const container = document.getElementById('flightList');
-      container.innerHTML = '';
-      flights.forEach(f => {
-        const div = document.createElement('div');
-        div.className = 'flight-item';
-        div.innerText = `${f.callsign || '???'} (${f.network})`;
-        div.onclick = () => { map.panTo(getLatLng(f)); selectedId = idFor(f); showDetails(f); };
-        container.appendChild(div);
-      });
-    }
-
-    // Initial load
-    updateFlights();
-    setInterval(updateFlights, 10000); // refresh every 10s
-  </script>
+updateFlights();
+setInterval(updateFlights, 10000);
+</script>
 </body>
 </html>
