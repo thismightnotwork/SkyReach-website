@@ -29,19 +29,14 @@
       background: #1e293b;
       padding: 1rem;
     }
-    header img {
-      height: 60px;
-      vertical-align: middle;
-    }
+    header img { height: 60px; vertical-align: middle; }
     nav a {
       color: #93c5fd;
       margin: 0 1rem;
       text-decoration: none;
       font-weight: bold;
     }
-    nav a:hover {
-      text-decoration: underline;
-    }
+    nav a:hover { text-decoration: underline; }
     main {
       max-width: 900px;
       margin: 2rem auto;
@@ -97,5 +92,37 @@
   <footer>
     &copy; 2025 SkyReach Virtual Airline — All rights reserved.
   </footer>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, getIdTokenResult } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA92I8ATCslzGoveL_LFKproCkI0clq5XE",
+      authDomain: "skyreach-login.firebaseapp.com",
+      projectId: "skyreach-login",
+      storageBucket: "skyreach-login.firebasestorage.app",
+      messagingSenderId: "531909303327",
+      appId: "1:531909303327:web:58f4b25a6b8023ef87c92a",
+      measurementId: "G-3XKSQ6W4PY"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Redirect logged-in users to gallery
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // Optional: store admin claim
+        const idTokenResult = await getIdTokenResult(user);
+        const isAdmin = idTokenResult.claims.admin === true;
+        localStorage.setItem('isAdmin', isAdmin ? 'true' : 'false');
+
+        // Redirect to gallery page
+        window.location.href = '/gallery.html';
+      }
+    });
+  </script>
 </body>
 </html>
