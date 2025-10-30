@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SkyReach — Virtual Airline (Rebuild)</title>
+
+  <!-- Tailwind CDN (allowed) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Tailwind config: set custom colors & font-family via inline style -->
+  <style>
+    :root{
+      --sr-blue: #0f4e9c;      /* deep blue */
+      --sr-blue-600: #1e63c8;  /* accent / CTA */
+      --sr-gray-100: #f7fafc;
+      --sr-muted: #6b7280;
+      --sr-accent: #ffb020;    /* warm accent */
+    }
+
+    /* Use Tailwind's utility classes, but add a few small custom rules */
+    html,body,#app { height: 100%; }
+    body {
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      color: #0f172a;
+    }
+
+    /* subtle glass for hero overlay */
+    .glass {
+      background: rgba(255,255,255,0.6);
+      backdrop-filter: blur(6px);
+    }
+
+    /* Animated expand/collapse for service descriptions */
+    .collapsible {
+      transition: max-height 320ms cubic-bezier(.2,.8,.2,1), opacity 220ms;
+      overflow: hidden;
+      opacity: 1;
+    }
+
+    .collapsible.collapsed {
+      max-height: 0;
+      opacity: 0;
+    }
+
+    /* focus ring for accessibility */
+    .focus-ring:focus {
+      outline: 3px solid rgba(30,99,200,0.22);
+      outline-offset: 2px;
+    }
+
+    /* Lightbox modal base */
+    .modal-backdrop {
+      background: rgba(2,6,23,0.6);
+      backdrop-filter: blur(2px);
+    }
+
+    /* subtle scrollbar styling (non-critical) */
+    ::-webkit-scrollbar { height: 12px; width: 10px; }
+    ::-webkit-scrollbar-thumb { background: rgba(15,78,156,0.12); border-radius: 8px; }
+  </style>
+
+  <meta name="description" content="SkyReach Virtual Airline — connecting you through the skies. Rebuilt single-page site." />
+</head>
+<body class="antialiased text-slate-900" id="app">
+
+  <!-- STICKY NAV -->
+  <header class="fixed top-0 left-0 w-full z-50 shadow-sm bg-white/60 backdrop-blur glass">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav class="flex items-center justify-between h-16">
+        <div class="flex items-center space-x-3">
+          <a href="#home" class="flex items-center gap-3">
+            <div class="h-9 w-9 rounded-full flex items-center justify-center" style="background:var(--sr-blue); color:white; font-weight:700">SR</div>
+            <div class="hidden sm:block">
+              <span class="font-semibold text-lg tracking-tight">SkyReach</span>
+              <div class="text-xs text-slate-500 -mt-0.5">Virtual Airline</div>
+            </div>
+          </a>
+        </div>
+
+        <div class="hidden md:flex items-center space-x-6">
+          <a class="nav-link text-slate-700 hover:text-slate-900 py-2 px-1" href="#home">Home</a>
+          <a class="nav-link text-slate-700 hover:text-slate-900 py-2 px-1" href="#about">About</a>
+          <a class="nav-link text-slate-700 hover:text-slate-900 py-2 px-1" href="#services">Services</a>
+          <a class="nav-link text-slate-700 hover:text-slate-900 py-2 px-1" href="#why-choose-us">Why Choose Us</a>
+          <a class="nav-link text-slate-700 hover:text-slate-900 py-2 px-1" href="#gallery">Gallery</a>
+          <a class="nav-link text-slate-700 hover:text-slate-900 py-2 px-1" href="#contact">Contact</a>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <a href="#contact" class="hidden sm:inline-block rounded-md px-4 py-2 text-sm font-medium focus-ring" style="background:var(--sr-blue-600);color:white">Contact Us</a>
+
+          <!-- Mobile menu button -->
+          <button id="navToggle" class="md:hidden p-2 rounded-md focus-ring" aria-label="Open menu">
+            <svg id="navOpenIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" /></svg>
+            <svg id="navCloseIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+        </div>
+      </nav>
+    </div>
+
+    <!-- Mobile nav -->
+    <div id="mobileNav" class="md:hidden hidden border-t border-slate-100">
+      <div class="px-4 pb-4 space-y-2">
+        <a class="block nav-link py-2" href="#home">Home</a>
+        <a class="block nav-link py-2" href="#about">About</a>
+        <a class="block nav-link py-2" href="#services">Services</a>
+        <a class="block nav-link py-2" href="#why-choose-us">Why Choose Us</a>
+        <a class="block nav-link py-2" href="#gallery">Gallery</a>
+        <a class="block nav-link py-2" href="#contact">Contact</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="pt-20">
+
+    <!-- HERO / HOME -->
+    <section id="home" class="min-h-[60vh] flex items-center">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+          <div class="py-12">
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight">Welcome to SkyReach Virtual Airline</h1>
+            <p class="mt-4 text-slate-600 max-w-xl">Connecting you through the skies. We bring a realistic, community-first virtual airline experience to flight sim pilots across the UK and beyond.</p>
+
+            <div class="mt-6 flex flex-wrap gap-3">
+              <a href="#services" class="inline-flex items-center gap-2 px-5 py-3 rounded-md shadow-sm text-sm font-semibold" style="background:var(--sr-blue-600); color:white">Our Services</a>
+              <a href="#contact" class="inline-flex items-center gap-2 px-5 py-3 rounded-md text-sm font-semibold border border-slate-200">Contact Us</a>
+            </div>
+
+            <div class="mt-8 text-sm text-slate-500">
+              <strong>Members:</strong> <a href="#" class="text-slate-700 underline">Login to Members Area</a>
+            </div>
+          </div>
+
+          <div class="relative">
+            <div class="rounded-xl overflow-hidden shadow-lg">
+              <img src="https://placehold.co/900x600/0f4e9c/ffffff?text=SkyReach+Banner" alt="SkyReach banner with aircraft silhouette" class="w-full h-full object-cover">
+            </div>
+            <div class="mt-3 text-xs text-slate-400">Image placeholder — replace with your images when ready.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="py-16 bg-white">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+          <div class="lg:col-span-2">
+            <h2 class="text-2xl font-semibold">About SkyReach</h2>
+            <p class="mt-4 text-slate-600 leading-relaxed">
+              SkyReach is a UK-based virtual airline focused on delivering an authentic and community-driven flying experience.
+              We provide structured events, route networks, and a friendly membership area where pilots can log flights, participate in challenges, and connect with other members.
+            </p>
+
+            <ul class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <li class="flex items-start gap-3">
+                <div class="flex-shrink-0 h-8 w-8 rounded-md bg-slate-100 flex items-center justify-center text-slate-600">✈️</div>
+                <div>
+                  <div class="font-medium">Realistic operations</div>
+                  <div class="text-sm text-slate-500">Procedures and routes prioritised for immersion.</div>
+                </div>
+              </li>
+              <li class="flex items-start gap-3">
+                <div class="flex-shrink-0 h-8 w-8 rounded-md bg-slate-100 flex items-center justify-center text-slate-600">👥</div>
+                <div>
+                  <div class="font-medium">Community-first</div>
+                  <div class="text-sm text-slate-500">Events, training, and social flying opportunities.</div>
+                </div>
+              </li>
+              <li class="flex items-start gap-3">
+                <div class="flex-shrink-0 h-8 w-8 rounded-md bg-slate-100 flex items-center justify-center text-slate-600">🧭</div>
+                <div>
+                  <div class="font-medium">UK Hubs</div>
+                  <div class="text-sm text-slate-500">Manchester, Luton, Gatwick, Edinburgh (example hubs).</div>
+                </div>
+              </li>
+              <li class="flex items-start gap-3">
+                <div class="flex-shrink-0 h-8 w-8 rounded-md bg-slate-100 flex items-center justify-center text-slate-600">🛠️</div>
+                <div>
+                  <div class="font-medium">Pilot support</div>
+                  <div class="text-sm text-slate-500">Guides, checklists and onboarding resources.</div>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <aside class="bg-slate-50 p-4 rounded-lg">
+            <h3 class="text-sm font-semibold text-slate-800">Quick facts</h3>
+            <dl class="mt-3 text-sm text-slate-600 space-y-2">
+              <div><span class="font-medium">Founded</span>: 2024</div>
+              <div><span class="font-medium">ICAO</span>: SRH</div>
+              <div><span class="font-medium">Hubs</span>: MAN, LTN, LGW, EDI</div>
+            </dl>
+            <div class="mt-4"><a href="#contact" class="inline-block text-sm px-3 py-2 border rounded-md">Get in touch</a></div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section id="services" class="py-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between">
+          <h2 class="text-2xl font-semibold">Our Services</h2>
+          <p class="text-sm text-slate-500">Realistic virtual airline services for members and community.</p>
+        </div>
+
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Service card template repeated -->
+          <article class="rounded-lg border p-4">
+            <div class="flex items-start gap-4">
+              <img class="w-24 h-16 object-cover rounded" src="https://placehold.co/600x400/1e63c8/ffffff?text=A320+Ops" alt="A320 operations placeholder">
+              <div class="flex-1">
+                <h3 class="font-semibold">Fleet Ops & Route Network</h3>
+                <p class="mt-1 text-sm text-slate-500">Structured routes across our hubs and network.</p>
+
+                <!-- Collapsible description -->
+                <div class="mt-3">
+                  <div class="collapsible collapsed" data-id="svc-1" style="max-height:0">
+                    <p class="text-sm text-slate-600">
+                      We maintain a curated network of routes optimised for our fleet mix — A320neo, Embraer E190, ATR72/42.
+                      Members get access to preferred routes, recommended procedures and event routes for community fly-ins.
+                    </p>
+                  </div>
+
+                  <button class="mt-3 text-sm font-medium toggle-btn" data-target="svc-1" aria-expanded="false">
+                    Read more
+                  </button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="rounded-lg border p-4">
+            <div class="flex items-start gap-4">
+              <img class="w-24 h-16 object-cover rounded" src="https://placehold.co/600x400/0f4e9c/ffffff?text=Training" alt="Pilot training placeholder">
+              <div class="flex-1">
+                <h3 class="font-semibold">Pilot Training & Mentoring</h3>
+                <p class="mt-1 text-sm text-slate-500">Structured mentoring and training programs.</p>
+
+                <div class="mt-3">
+                  <div class="collapsible collapsed" data-id="svc-2" style="max-height:0">
+                    <p class="text-sm text-slate-600">
+                      We provide mentoring, procedural training, and event coaching to help pilots improve technique,
+                      learn realistic approaches (including ILS procedures) and become active community members.
+                    </p>
+                  </div>
+
+                  <button class="mt-3 text-sm font-medium toggle-btn" data-target="svc-2" aria-expanded="false">Read more</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="rounded-lg border p-4">
+            <div class="flex items-start gap-4">
+              <img class="w-24 h-16 object-cover rounded" src="https://placehold.co/600x400/0b61a6/ffffff?text=Events" alt="Events and community placeholder">
+              <div class="flex-1">
+                <h3 class="font-semibold">Community Events</h3>
+                <p class="mt-1 text-sm text-slate-500">Regular fly-ins, group flights and competitions.</p>
+
+                <div class="mt-3">
+                  <div class="collapsible collapsed" data-id="svc-3" style="max-height:0">
+                    <p class="text-sm text-slate-600">
+                      Our events calendar features weekly group flights, seasonal events and challenges. Staff-led events
+                      include briefings, route packs and ATC coordination where possible.
+                    </p>
+                  </div>
+
+                  <button class="mt-3 text-sm font-medium toggle-btn" data-target="svc-3" aria-expanded="false">Read more</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="rounded-lg border p-4">
+            <div class="flex items-start gap-4">
+              <img class="w-24 h-16 object-cover rounded" src="https://placehold.co/600x400/2b6cb0/ffffff?text=Support" alt="Support and resources placeholder">
+              <div class="flex-1">
+                <h3 class="font-semibold">Guides & Resources</h3>
+                <p class="mt-1 text-sm text-slate-500">Checklists, how-tos and pilot resources.</p>
+
+                <div class="mt-3">
+                  <div class="collapsible collapsed" data-id="svc-4" style="max-height:0">
+                    <p class="text-sm text-slate-600">
+                      Downloadable guides, recommended procedure notes and checklists to support safe and realistic operations.
+                      Content is optimised for popular aircraft used by members.
+                    </p>
+                  </div>
+
+                  <button class="mt-3 text-sm font-medium toggle-btn" data-target="svc-4" aria-expanded="false">Read more</button>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHY CHOOSE US -->
+    <section id="why-choose-us" class="py-16 bg-slate-50">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-2xl font-semibold">Why Choose SkyReach?</h2>
+        <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="p-6 bg-white rounded-lg shadow-sm">
+            <h3 class="font-semibold">Realism</h3>
+            <p class="mt-2 text-sm text-slate-500">Operations built around realistic procedures for immersion.</p>
+          </div>
+          <div class="p-6 bg-white rounded-lg shadow-sm">
+            <h3 class="font-semibold">Community</h3>
+            <p class="mt-2 text-sm text-slate-500">Active social flying and mentoring program.</p>
+          </div>
+          <div class="p-6 bg-white rounded-lg shadow-sm">
+            <h3 class="font-semibold">Support</h3>
+            <p class="mt-2 text-sm text-slate-500">Resources, training and friendly staff.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GALLERY -->
+    <section id="gallery" class="py-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between">
+          <h2 class="text-2xl font-semibold">Gallery</h2>
+          <p class="text-sm text-slate-500">Click any image to view larger.</p>
+        </div>
+
+        <div class="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          <!-- Repeat placeholders -->
+          <button class="gallery-item block rounded overflow-hidden focus-ring" data-src="https://placehold.co/1200x800/0f4e9c/ffffff?text=SkyReach+1" aria-label="Open image 1">
+            <img src="https://placehold.co/600x400/0f4e9c/ffffff?text=SkyReach+1" alt="SkyReach gallery image 1" class="w-full h-40 object-cover">
+          </button>
+
+          <button class="gallery-item block rounded overflow-hidden focus-ring" data-src="https://placehold.co/1200x800/1e63c8/ffffff?text=SkyReach+2" aria-label="Open image 2">
+            <img src="https://placehold.co/600x400/1e63c8/ffffff?text=SkyReach+2" alt="SkyReach gallery image 2" class="w-full h-40 object-cover">
+          </button>
+
+          <button class="gallery-item block rounded overflow-hidden focus-ring" data-src="https://placehold.co/1200x800/0b61a6/ffffff?text=SkyReach+3" aria-label="Open image 3">
+            <img src="https://placehold.co/600x400/0b61a6/ffffff?text=SkyReach+3" alt="SkyReach gallery image 3" class="w-full h-40 object-cover">
+          </button>
+
+          <button class="gallery-item block rounded overflow-hidden focus-ring" data-src="https://placehold.co/1200x800/2b6cb0/ffffff?text=SkyReach+4" aria-label="Open image 4">
+            <img src="https://placehold.co/600x400/2b6cb0/ffffff?text=SkyReach+4" alt="SkyReach gallery image 4" class="w-full h-40 object-cover">
+          </button>
+
+          <button class="gallery-item block rounded overflow-hidden focus-ring" data-src="https://placehold.co/1200x800/2647a1/ffffff?text=SkyReach+5" aria-label="Open image 5">
+            <img src="https://placehold.co/600x400/2647a1/ffffff?text=SkyReach+5" alt="SkyReach gallery image 5" class="w-full h-40 object-cover">
+          </button>
+
+          <button class="gallery-item block rounded overflow-hidden focus-ring" data-src="https://placehold.co/1200x800/1a4fa0/ffffff?text=SkyReach+6" aria-label="Open image 6">
+            <img src="https://placehold.co/600x400/1a4fa0/ffffff?text=SkyReach+6" alt="SkyReach gallery image 6" class="w-full h-40 object-cover">
+          </button>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="py-16 bg-slate-50">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div>
+            <h2 class="text-2xl font-semibold">Contact Us</h2>
+            <p class="mt-3 text-slate-600">Questions, membership enquiries, or event proposals — we'd love to hear from you.</p>
+
+            <dl class="mt-6 text-sm text-slate-600 space-y-3">
+              <div><strong>Email:</strong> <a href="mailto:info@skyreachuk.co.uk" class="underline">info@skyreachuk.co.uk</a></div>
+              <div><strong>Location:</strong> United Kingdom</div>
+              <div><strong>Members area:</strong> <a href="#" class="underline">Login</a></div>
+            </dl>
+          </div>
+
+          <form id="contactForm" class="bg-white p-6 rounded-lg shadow" novalidate>
+            <div id="formFeedback" class="hidden text-sm p-3 rounded mb-3"></div>
+
+            <label class="block text-sm font-medium">Name</label>
+            <input id="name" name="name" class="mt-1 block w-full rounded-md border px-3 py-2" required>
+
+            <label class="block text-sm font-medium mt-4">Email</label>
+            <input id="email" name="email" type="email" class="mt-1 block w-full rounded-md border px-3 py-2" required>
+
+            <label class="block text-sm font-medium mt-4">Message</label>
+            <textarea id="message" name="message" rows="4" class="mt-1 block w-full rounded-md border px-3 py-2" required></textarea>
+
+            <div class="mt-4 flex items-center justify-between gap-3">
+              <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-md text-white" style="background:var(--sr-blue-600)">Send Message</button>
+              <button type="button" id="clearForm" class="text-sm text-slate-500">Clear</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t mt-12">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div>
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-full bg-[color:var(--sr-blue)] text-white flex items-center justify-center">SR</div>
+            <div>
+              <div class="font-semibold">SkyReach</div>
+              <div class="text-xs text-slate-500">Virtual Airline</div>
+            </div>
+          </div>
+          <div class="mt-3 text-sm text-slate-500">© 2025 SkyReach Virtual Airline — All rights reserved.</div>
+        </div>
+
+        <div class="text-sm text-slate-600">
+          <a href="#privacy" class="inline-block mr-4">Privacy</a>
+          <a href="#terms" class="inline-block mr-4">Terms</a>
+          <a href="#contact" class="inline-block">Contact</a>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <!-- LIGHTBOX / MODAL -->
+  <div id="lightbox" class="fixed inset-0 z-60 hidden items-center justify-center modal-backdrop">
+    <div class="max-w-4xl w-full px-4">
+      <div class="bg-white rounded-lg overflow-hidden shadow-lg">
+        <div class="flex items-center justify-between p-3 border-b">
+          <div class="text-sm font-medium">Image preview</div>
+          <button id="lightboxClose" class="p-2 focus-ring" aria-label="Close image preview">✕</button>
+        </div>
+        <div class="p-4">
+          <img id="lightboxImg" src="" alt="Expanded gallery image" class="w-full h-auto object-contain rounded">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS: All inline (ES6+) -->
+  <script>
+    /* =========================
+       Mobile nav toggle
+       ========================= */
+    const navToggle = document.getElementById('navToggle');
+    const mobileNav = document.getElementById('mobileNav');
+    const navOpenIcon = document.getElementById('navOpenIcon');
+    const navCloseIcon = document.getElementById('navCloseIcon');
+
+    navToggle.addEventListener('click', () => {
+      const open = mobileNav.classList.toggle('hidden');
+      // toggle icons
+      navOpenIcon.classList.toggle('hidden');
+      navCloseIcon.classList.toggle('hidden');
+    });
+
+    /* =========================
+       Smooth scroll for anchor links
+       ========================= */
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', function (e) {
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          // close mobile nav on selection
+          if (!mobileNav.classList.contains('hidden')) {
+            mobileNav.classList.add('hidden');
+            navOpenIcon.classList.remove('hidden');
+            navCloseIcon.classList.add('hidden');
+          }
+        }
+      });
+    });
+
+    /* =========================
+       Active nav link highlighting
+       Uses IntersectionObserver to add "active" class when a section is visible.
+       ========================= */
+    const sections = document.querySelectorAll('main section[id]');
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    // Helper: remove active state
+    function clearActive() {
+      navLinks.forEach(l => l.classList.remove('text-slate-900', 'font-semibold'));
+    }
+
+    // Observe when each section is intersecting the viewport
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          // find the nav link that matches
+          const id = entry.target.id;
+          clearActive();
+          const activeLink = document.querySelectorAll(`.nav-link[href="#${id}"]`);
+          activeLink.forEach(a => a.classList.add('text-slate-900','font-semibold'));
+          // Also highlight top-level links in header if present (desktop)
+        }
+      });
+    }, {
+      root: null,
+      rootMargin: '-40% 0px -40% 0px', // trigger when section near center
+      threshold: 0
+    });
+
+    sections.forEach(s => observer.observe(s));
+
+    /* =========================
+       "Read more / Read less" toggles for services
+       Animated by changing max-height & classes; uses data attributes.
+       ========================= */
+    const toggleBtns = document.querySelectorAll('.toggle-btn');
+    toggleBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const targetId = btn.dataset.target;
+        const el = document.querySelector(`.collapsible[data-id="${targetId}"]`);
+        const isCollapsed = el.classList.contains('collapsed');
+
+        if (isCollapsed) {
+          // Expand: measure content then set max-height to enable transition
+          el.classList.remove('collapsed');
+          // compute natural height
+          el.style.maxHeight = el.scrollHeight + 'px';
+          btn.textContent = 'Read less';
+          btn.setAttribute('aria-expanded','true');
+        } else {
+          // Collapse
+          el.style.maxHeight = '0px';
+          el.classList.add('collapsed');
+          btn.textContent = 'Read more';
+          btn.setAttribute('aria-expanded','false');
+        }
+      });
+    });
+
+    // On window resize, clear explicit max-heights so measurement remains correct
+    window.addEventListener('resize', () => {
+      document.querySelectorAll('.collapsible').forEach(el => {
+        if (!el.classList.contains('collapsed')) {
+          el.style.maxHeight = el.scrollHeight + 'px';
+        }
+      });
+    });
+
+    /* =========================
+       Gallery modal (lightbox)
+       - Clicking a .gallery-item opens the modal and sets the image src
+       - Simple accessible close handlers included
+       ========================= */
+    const galleryItems = document.querySelectorAll('.gallery-item');
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+    const lightboxClose = document.getElementById('lightboxClose');
+
+    function openLightbox(src, alt) {
+      lightboxImg.src = src;
+      lightboxImg.alt = alt || 'Gallery image';
+      lightbox.classList.remove('hidden');
+      lightbox.style.display = 'flex';
+      document.body.style.overflow = 'hidden'; // prevent background scroll
+      lightboxClose.focus();
+    }
+
+    function closeLightbox() {
+      lightbox.classList.add('hidden');
+      lightbox.style.display = '';
+      lightboxImg.src = '';
+      document.body.style.overflow = '';
+    }
+
+    galleryItems.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const src = btn.dataset.src;
+        const alt = btn.querySelector('img')?.alt || 'Gallery image';
+        openLightbox(src, alt);
+      });
+    });
+
+    // Close handlers
+    lightboxClose.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) closeLightbox(); // click on backdrop
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !lightbox.classList.contains('hidden')) closeLightbox();
+    });
+
+    /* =========================
+       Contact form client-side validation & simulated send
+       - Shows errors inline and displays success message on "send"
+       - No backend: simulates network latency and returns success
+       ========================= */
+    const contactForm = document.getElementById('contactForm');
+    const feedbackEl = document.getElementById('formFeedback');
+    const clearBtn = document.getElementById('clearForm');
+
+    function setFeedback(type, message) {
+      feedbackEl.classList.remove('hidden');
+      feedbackEl.textContent = message;
+      feedbackEl.className = '';
+      feedbackEl.classList.add('rounded', 'text-sm', 'p-3');
+      if (type === 'error') {
+        feedbackEl.classList.add('bg-red-50','text-red-700','border','border-red-100');
+      } else {
+        feedbackEl.classList.add('bg-green-50','text-green-800','border','border-green-100');
+      }
+    }
+
+    contactForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      // simple validation
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const message = document.getElementById('message').value.trim();
+
+      if (!name || !email || !message) {
+        setFeedback('error', 'Please complete all fields before sending.');
+        return;
+      }
+
+      // basic email format check
+      if (!/^\S+@\S+\.\S+$/.test(email)) {
+        setFeedback('error', 'Please enter a valid email address.');
+        return;
+      }
+
+      // simulate sending
+      setFeedback('info', 'Sending message...');
+      const submitButton = contactForm.querySelector('button[type="submit"]');
+      submitButton.disabled = true;
+      submitButton.style.opacity = '0.7';
+
+      setTimeout(() => {
+        // success
+        setFeedback('success', 'Message sent! We will get back to you soon.');
+        contactForm.reset();
+        submitButton.disabled = false;
+        submitButton.style.opacity = '';
+      }, 900); // short simulated delay
+    });
+
+    clearBtn.addEventListener('click', () => {
+      contactForm.reset();
+      feedbackEl.classList.add('hidden');
+    });
+
+    /* =========================
+       Accessibility enhancements:
+       - ensure focus lands on newly opened modal close button (done)
+       - ensure focusable controls have visible focus rings (via .focus-ring)
+       ========================= */
+
+    /* =========================
+       End of inline scripts
+       ========================= */
+  </script>
+</body>
+</html>
