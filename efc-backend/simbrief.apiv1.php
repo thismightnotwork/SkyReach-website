@@ -22,7 +22,7 @@
 
 /**********************************************************************/
 
-$simbrief_api_key = 'PASTEHERE'; //Paste your API key here
+$simbrief_api_key = '5sP7yo8S05R9T7do6XghOwuAgaO5dUJh'; //Paste your API key here
 
 /**********************************************************************/
 
@@ -236,6 +236,7 @@ $ofp_id = isset($_GET['ofp_id']) && $_GET['ofp_id'] != '' ? $_GET['ofp_id'] : fa
 */
 
 $simbrief = new SimBrief($ofp_id);
+
 
 
 
